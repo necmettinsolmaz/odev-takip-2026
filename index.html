@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ödev Defteri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F2F7; --card:#FFFFFF; --label:#1C1C1E; --label-secondary:#8E8E93;
+  --separator:rgba(60,60,67,0.1); --blue:#007AFF; --green:#34C759; --red:#FF3B30;
+  --orange:#FF9500; --purple:#AF52DE; --teal:#32ADE6; --gray-fill:#E5E5EA;
+}
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; margin:0; overscroll-behavior-y:none; }
+body{
+  background:var(--bg); font-family:"Manrope",-apple-system,BlinkMacSystemFont,sans-serif;
+  color:var(--label); -webkit-font-smoothing:antialiased;
+}
+#app{ max-width:480px; margin:0 auto; min-height:100vh; position:relative; padding-bottom:100px; }
+
+header.top{ padding:18px 20px 4px 20px; display:flex; align-items:center; gap:10px; }
+header.top .back{ width:30px;height:30px;border-radius:50%; background:var(--card); display:flex;align-items:center;justify-content:center; color:var(--blue); flex-shrink:0; cursor:pointer; }
+header.top .back svg{ width:14px;height:14px; }
+header.top h1{ font-size:30px; font-weight:700; letter-spacing:-0.4px; margin:0; }
+header.top .sub{ font-size:13px; color:var(--label-secondary); margin:2px 0 0 0; }
+header.top .avatar{ width:40px;height:40px;border-radius:50%; background:rgba(0,122,255,0.1); color:var(--blue); display:flex;align-items:center;justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; }
+header.top .spacer{ flex:1; }
+header.top .head-actions{ display:flex; gap:8px; }
+.icon-round{ width:32px;height:32px;border-radius:50%; background:var(--card); display:flex;align-items:center;justify-content:center; cursor:pointer; color:var(--blue); }
+.icon-round svg{ width:15px;height:15px; }
+
+.filters{ display:flex; gap:8px; overflow-x:auto; padding:14px 20px 14px 20px; scrollbar-width:none; }
+.filters::-webkit-scrollbar{ display:none; }
+.chip{ flex:0 0 auto; padding:8px 16px; border-radius:20px; background:var(--card); font-size:14px; font-weight:500; color:var(--label); cursor:pointer; white-space:nowrap; }
+.chip.active{ background:var(--label); color:#fff; }
+
+.list{ padding:0 16px 8px 16px; display:flex; flex-direction:column; gap:12px; }
+
+.empty-state{ text-align:center; padding:60px 30px; color:var(--label-secondary); }
+.empty-state svg{ width:48px;height:48px; margin-bottom:14px; opacity:0.4; }
+.empty-state .t{ font-size:15px; font-weight:600; margin-bottom:4px; color:var(--label); }
+.empty-state .s{ font-size:13.5px; }
+
+/* Assignment card */
+.acard{ background:var(--card); border-radius:18px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.04), 0 8px 20px rgba(0,0,0,0.03); }
+.acard-head{ display:flex; padding:16px 16px 14px 16px; gap:10px; align-items:flex-start; cursor:pointer; }
+.acard-body{ flex:1; min-width:0; }
+.subject-tag{ display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; color:var(--blue); background:rgba(0,122,255,0.1); padding:3px 9px 3px 7px; border-radius:8px; margin-bottom:8px; }
+.subject-tag svg{ width:12px;height:12px; }
+.konu{ font-size:17px; font-weight:600; margin:0 0 4px 0; letter-spacing:-0.2px; line-height:1.3; }
+.info-row{ display:flex; align-items:center; flex-wrap:nowrap; gap:6px; font-size:14px; color:var(--label-secondary); margin:0 0 12px 0; overflow:hidden; }
+.kaynak-text{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.page-inline{ display:flex; align-items:center; gap:4px; font-size:14px; font-weight:500; color:var(--label-secondary); flex-shrink:0; }
+.page-inline svg{ width:14px;height:14px; flex-shrink:0; }
+.dates-row{ display:flex; gap:16px; }
+.date-item{ display:flex; align-items:center; gap:5px; font-size:13px; color:var(--label-secondary); font-weight:500; }
+.date-item svg{ width:14px;height:14px; flex-shrink:0; }
+.date-item.control{ color:var(--orange); }
+.date-item.overdue{ color:var(--red); font-weight:600; }
+.acard-actions{ display:flex; flex-direction:column; align-items:center; gap:12px; padding-top:2px; }
+.icon-btn{ width:30px;height:30px;border-radius:50%; background:var(--gray-fill); display:flex;align-items:center;justify-content:center; cursor:pointer; color:var(--label); }
+.icon-btn svg{ width:14px;height:14px; }
+.icon-btn.share{ color:var(--blue); background:rgba(0,122,255,0.1); }
+.icon-btn.edit{ color:var(--blue); background:rgba(0,122,255,0.1); }
+.chevron{ color:var(--label-secondary); transition:transform 0.2s ease; display:flex; }
+.chevron svg{ width:14px;height:14px; }
+.acard.open .chevron{ transform:rotate(180deg); }
+.students{ max-height:0; overflow:hidden; transition:max-height 0.3s ease; }
+.acard.open .students{ max-height:1000px; }
+.students-inner{ padding:4px 16px 16px 16px; display:flex; flex-direction:column; }
+.student-row{ display:flex; justify-content:space-between; align-items:center; padding:11px 4px; border-top:1px solid var(--separator); }
+.student-row:first-child{ border-top:none; padding-top:8px; }
+.student-name{ font-size:15px; font-weight:500; }
+.status-pill{ display:flex; align-items:center; gap:5px; font-size:13px; font-weight:600; padding:6px 12px; border-radius:14px; cursor:pointer; user-select:none; white-space:nowrap; }
+.status-pill svg{ width:12px;height:12px; }
+.status-empty{ background:var(--gray-fill); color:var(--label-secondary); }
+.status-yapti{ background:rgba(52,199,89,0.14); color:var(--green); }
+.status-yapmadi{ background:rgba(255,59,48,0.12); color:var(--red); }
+.status-eksik{ background:rgba(255,149,0,0.14); color:var(--orange); }
+.status-gelmedi{ background:rgba(175,82,222,0.13); color:var(--purple); }
+.status-kitabi_yok{ background:rgba(50,173,230,0.14); color:var(--teal); }
+.late-badge{ display:inline-flex; align-items:center; justify-content:center; width:15px;height:15px;border-radius:50%; background:rgba(255,149,0,0.9); color:#fff; margin-left:2px; }
+.late-badge svg{ width:8px;height:8px; }
+
+@keyframes pillPulse{ 0%{ box-shadow:0 0 0 0 rgba(52,199,89,0.45); } 100%{ box-shadow:0 0 0 9px rgba(52,199,89,0); } }
+.pill-saved{ animation: pillPulse 0.6s ease-out; }
+.saved-mark{ display:inline-flex; align-items:center; justify-content:center; width:14px;height:14px; margin-left:1px; color:var(--green); animation: fadeOutMark 1.2s ease forwards; }
+.saved-mark svg{ width:9px;height:9px; }
+@keyframes fadeOutMark{ 0%{ opacity:1; transform:scale(1); } 65%{ opacity:1; transform:scale(1); } 100%{ opacity:0; transform:scale(0.7); } }
+
+.section-note{ margin:22px 20px 10px 20px; font-size:12.5px; color:var(--label-secondary); line-height:1.5; }
+
+.fab{ position:fixed; bottom:96px; right:calc(50% - 200px); width:58px;height:58px; border-radius:50%; background:var(--blue); color:#fff; display:flex;align-items:center;justify-content:center; box-shadow:0 8px 20px rgba(0,122,255,0.35); cursor:pointer; z-index:20; }
+.fab svg{ width:24px;height:24px; }
+@media (max-width:520px){ .fab{ right:24px; } }
+
+.tab-bar{ position:fixed; bottom:0; left:0; right:0; max-width:480px; margin:0 auto; background:rgba(249,249,249,0.94); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-top:1px solid var(--separator); display:flex; padding:8px 0 22px 0; z-index:20; }
+.tab-item{ flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--label-secondary); cursor:pointer; }
+.tab-item svg{ width:24px;height:24px; }
+.tab-item span{ font-size:10.5px; font-weight:600; }
+.tab-item.active{ color:var(--blue); }
+
+/* Row card (classes/students) */
+.row-card{ background:var(--card); border-radius:16px; padding:14px 14px; display:flex; align-items:center; gap:12px; box-shadow:0 1px 2px rgba(0,0,0,0.04); cursor:pointer; }
+.avatar{ width:38px;height:38px;border-radius:11px; background:rgba(0,122,255,0.1); color:var(--blue); display:flex;align-items:center;justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; }
+.avatar.round{ border-radius:50%; }
+.row-main{ flex:1; min-width:0; }
+.row-title{ font-size:15.5px; font-weight:600; }
+.row-sub{ font-size:13px; color:var(--label-secondary); margin-top:1px; }
+.row-actions{ display:flex; gap:6px; flex-shrink:0; }
+.icon-btn.danger{ color:var(--red); background:rgba(255,59,48,0.1); }
+.icon-btn.move{ color:var(--purple); background:rgba(175,82,222,0.1); }
+
+/* Bottom sheet */
+.sheet-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:flex-end; z-index:50; }
+.sheet-backdrop .sheet-wrap{ max-width:480px; margin:0 auto; width:100%; }
+.sheet{ background:var(--card); width:100%; border-radius:22px 22px 0 0; padding:10px 20px max(28px, env(safe-area-inset-bottom)) 20px; max-height:88vh; overflow-y:auto; }
+.sheet-handle{ width:36px;height:5px;border-radius:3px; background:var(--gray-fill); margin:6px auto 16px auto; }
+.sheet-title{ font-size:19px; font-weight:700; margin:0 0 4px 0; }
+.sheet-sub{ font-size:13px; color:var(--label-secondary); margin:0 0 18px 0; }
+.field{ margin-bottom:14px; }
+.field-label{ font-size:12px; font-weight:600; color:var(--label-secondary); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:7px; }
+.field input, .field select{
+  width:100%; background:var(--bg); border:none; border-radius:12px; padding:13px 14px;
+  font-size:15px; color:var(--label); font-weight:500; font-family:inherit; appearance:none;
+}
+.field-static{
+  width:100%; background:var(--bg); border-radius:12px; padding:13px 14px;
+  font-size:15px; color:var(--label-secondary); font-weight:500;
+}
+.field-row{ display:flex; gap:10px; }
+.field-row .field{ flex:1; }
+.btn-primary{ background:var(--blue); color:#fff; text-align:center; padding:14px; border-radius:14px; font-size:15.5px; font-weight:700; margin-top:8px; cursor:pointer; }
+.btn-danger-solid{ background:var(--red); color:#fff; text-align:center; padding:14px; border-radius:14px; font-size:15.5px; font-weight:700; margin-top:8px; cursor:pointer; }
+.btn-danger-outline{ text-align:center; padding:12px; border-radius:14px; font-size:14.5px; font-weight:500; color:var(--red); cursor:pointer; }
+.btn-secondary-outline{ text-align:center; padding:14px; border-radius:14px; font-size:14.5px; font-weight:600; color:var(--label-secondary); margin-top:4px; cursor:pointer; }
+.danger-zone{ margin-top:20px; padding-top:14px; border-top:1px solid var(--separator); }
+
+/* Student history screen */
+.stats-row{ display:flex; gap:8px; padding:6px 16px 14px 16px; }
+.stat-chip{ flex:1; background:var(--card); border-radius:14px; padding:12px 8px; text-align:center; box-shadow:0 1px 2px rgba(0,0,0,0.04); }
+.stat-num{ font-size:19px; font-weight:800; }
+.stat-label{ font-size:10px; color:var(--label-secondary); font-weight:600; margin-top:2px; }
+.history-row{ background:var(--card); border-radius:14px; padding:12px 14px; display:flex; align-items:center; gap:10px; box-shadow:0 1px 2px rgba(0,0,0,0.04); }
+.history-list{ background:var(--card); border-radius:16px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.04); }
+.flat-list{ background:var(--card); border-radius:16px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.04); }
+.flat-list .row-card{ border-radius:0; box-shadow:none; border-top:1px solid var(--separator); }
+.flat-list .row-card:first-child{ border-top:none; }
+.history-list-row{ display:flex; align-items:center; gap:10px; padding:12px 14px; border-top:1px solid var(--separator); }
+.history-list-row:first-child{ border-top:none; }
+.history-main{ flex:1; min-width:0; }
+.history-ders{ font-size:11px; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:2px; }
+.history-konu{ font-size:14.5px; font-weight:600; }
+.history-date{ font-size:12px; color:var(--label-secondary); margin-top:2px; }
+
+.toast{ position:fixed; left:50%; bottom:110px; transform:translateX(-50%); background:rgba(28,28,30,0.92); color:#fff; padding:12px 20px; border-radius:14px; font-size:13.5px; font-weight:600; z-index:100; box-shadow:0 8px 24px rgba(0,0,0,0.25); max-width:80%; text-align:center; }
+
+.hidden{ display:none !important; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<input type="file" id="importFile" accept="application/json" class="hidden">
+
+<script>
+/* ============ STATE ============ */
+const STORAGE_KEY = 'odevTakipData_v1';
+const SUBJECT_ICONS = {
+  default: '<path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H19v-3"/>'
+};
+const SUBJECT_COLORS = ['#007AFF','#FF9500','#AF52DE','#32ADE6','#FF3B30','#34C759'];
+
+function uid(){ return 'id_' + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+function todayStr(){ const d = new Date(); return fmtISO(d); }
+function fmtISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function addDaysISO(iso, days){ const d = new Date(iso+'T00:00:00'); d.setDate(d.getDate()+days); return fmtISO(d); }
+const TR_MONTHS = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+function fmtTR(iso){ if(!iso) return ''; const d = new Date(iso+'T00:00:00'); return d.getDate()+' '+TR_MONTHS[d.getMonth()]; }
+function fmtTRFull(iso){ if(!iso) return ''; const d = new Date(iso+'T00:00:00'); return d.getDate()+' '+TR_MONTHS[d.getMonth()]+' '+d.getFullYear(); }
+function initials(name){ return name.trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+function colorForClass(classId){ const classes = state.classes; const idx = classes.findIndex(c=>c.id===classId); return SUBJECT_COLORS[Math.max(0,idx) % SUBJECT_COLORS.length]; }
+function hexToRgba(hex, a){ const h = hex.replace('#',''); const r=parseInt(h.substring(0,2),16), g=parseInt(h.substring(2,4),16), b=parseInt(h.substring(4,6),16); return `rgba(${r},${g},${b},${a})`; }
+
+function seedData(){
+  const c1 = {id: uid(), name:'9-A', subject:'Matematik'};
+  const c2 = {id: uid(), name:'9-B', subject:'Matematik'};
+  const c3 = {id: uid(), name:'10-A', subject:'Fizik'};
+  const classes = [c1,c2,c3];
+  const students = [
+    {id:uid(), name:'Ada Yılmaz', classId:c1.id},
+    {id:uid(), name:'Berk Demir', classId:c1.id},
+    {id:uid(), name:'Ceren Kaya', classId:c1.id},
+    {id:uid(), name:'Deniz Aksoy', classId:c1.id},
+    {id:uid(), name:'Gökhan Er', classId:c2.id},
+    {id:uid(), name:'Helin Öz', classId:c2.id},
+  ];
+  const a1 = {id:uid(), classId:c1.id, no:1, studentIds: students.filter(s=>s.classId===c1.id).map(s=>s.id), konu:'Fonksiyonlarda Bileşke İşlemi', kaynak:'Sarıgül Yayınları TYT Fasikül 4', sayfa:'42–47', verilis: todayStr(), kontrol: addDaysISO(todayStr(),7)};
+  const assignments = [a1];
+  const statuses = {};
+  return { classes, students, assignments, statuses };
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  const seeded = seedData();
+  return seeded;
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+let state = loadState();
+
+/* Migration: older saved data may have assignments without a studentIds snapshot.
+   Best-effort backfill using the class's current members so history isn't lost going forward. */
+(function migrateAssignmentStudentIds(){
+  let changed = false;
+  (state.assignments || []).forEach(a => {
+    if(!Array.isArray(a.studentIds)){
+      a.studentIds = state.students.filter(s => s.classId === a.classId).map(s => s.id);
+      changed = true;
+    }
+  });
+  if(changed) saveState();
+})();
+
+let ui = {
+  tab: 'odevler',
+  view: 'home', // home | classes | students | studentHistory
+  currentClassId: null,
+  currentStudentId: null,
+  filterClassId: null,
+  sortDir: 'asc',
+  openCardId: null,
+  sheet: null, // {type:'assignment'|'class'|'student', mode:'new'|'edit', id}
+  confirmSheet: null, // {title, message, actionType, id}
+  lastSavedKey: null
+};
+
+/* ============ STATUS HELPERS ============ */
+const STATUS_CYCLE = ['', 'yapti', 'yapmadi', 'eksik', 'gelmedi', 'kitabi_yok'];
+const STATUS_LABEL = { '':'—', yapti:'Yaptı', yapmadi:'Yapmadı', eksik:'Eksik', gelmedi:'Gelmedi', kitabi_yok:'Kitabı Yok' };
+function statusKey(aId, sId){ return aId+'::'+sId; }
+function nextAssignmentNo(classId){
+  const nums = state.assignments.filter(a=>a.classId===classId).map(a=>a.no||0);
+  return nums.length ? Math.max(...nums)+1 : 1;
+}
+function getStatus(aId, sId){ return state.statuses[statusKey(aId,sId)] || {status:'', doneAt:null}; }
+function setStatus(aId, sId, status){
+  const key = statusKey(aId,sId);
+  if(status === ''){ delete state.statuses[key]; }
+  else{
+    const doneAt = status === 'yapti' ? todayStr() : null;
+    state.statuses[key] = { status, doneAt };
+  }
+  saveState();
+}
+function cycleStatus(aId, sId){
+  const cur = getStatus(aId,sId).status;
+  const idx = STATUS_CYCLE.indexOf(cur);
+  const next = STATUS_CYCLE[(idx+1) % STATUS_CYCLE.length];
+  setStatus(aId, sId, next);
+}
+function studentsOfClass(classId){ return state.students.filter(s=>s.classId===classId); }
+function assignedStudents(a){
+  const ids = a.studentIds || [];
+  return state.students.filter(s => ids.includes(s.id));
+}
+function isAssignmentFullyDone(a){
+  const studs = assignedStudents(a);
+  if(studs.length===0) return false;
+  return studs.every(s => getStatus(a.id, s.id).status === 'yapti');
+}
+function isOverdue(a){
+  return a.kontrol < todayStr() && !isAssignmentFullyDone(a);
+}
+function isLate(a, sId){
+  const st = getStatus(a.id, sId);
+  return st.status==='yapti' && st.doneAt && st.doneAt > a.kontrol;
+}
+
+/* ============ ICONS ============ */
+const ICONS = {
+  chevronDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  chevronLeft: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  chevronRightSm: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>',
+  edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
+  move: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4l4 4"/><path d="M17 8v12M17 20l4-4M17 20l-4-4"/></svg>',
+  calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
+  clockThin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9L2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>',
+  pages: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  sort: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l3 3M17 4l-3 3"/></svg>',
+  book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+SUBJECT_ICONS.default+'</svg>',
+  gridTab: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>',
+  peopleTab: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 20v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>',
+  upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V8"/><path d="M7 13l5-5 5 5"/><path d="M5 3h14"/></svg>',
+  empty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H19v-3"/></svg>',
+};
+
+function statusIcon(status){
+  if(status==='yapti') return ICONS.check;
+  if(status==='yapmadi') return ICONS.x;
+  return '';
+}
+
+/* ============ RENDER ============ */
+const app = document.getElementById('app');
+
+function render(){
+  let html = '';
+  if(ui.view === 'home') html = renderHome();
+  else if(ui.view === 'classes') html = renderClasses();
+  else if(ui.view === 'students') html = renderStudents();
+  else if(ui.view === 'studentHistory') html = renderStudentHistory();
+
+  html += renderTabBar();
+  if(ui.sheet) html += renderSheet();
+  if(ui.confirmSheet) html += renderConfirmSheet();
+
+  app.innerHTML = html;
+  attachEvents();
+}
+
+function renderTabBar(){
+  return `
+  <div class="tab-bar">
+    <div class="tab-item ${ui.tab==='odevler'?'active':''}" data-action="go-tab" data-tab="odevler">
+      ${ICONS.gridTab}<span>Ödevler</span>
+    </div>
+    <div class="tab-item ${ui.tab==='siniflar'?'active':''}" data-action="go-tab" data-tab="siniflar">
+      ${ICONS.peopleTab}<span>Sınıflar</span>
+    </div>
+  </div>`;
+}
+
+/* ---------- HOME (ÖDEVLER) ---------- */
+function renderHome(){
+  const chips = ['<div class="chip ' + (ui.filterClassId===null?'active':'') + '" data-action="filter-class" data-id="">Tümü</div>']
+    .concat(state.classes.map(c => `<div class="chip ${ui.filterClassId===c.id?'active':''}" data-action="filter-class" data-id="${c.id}">${esc(c.name)}</div>`)).join('');
+
+  let list = state.assignments.slice();
+  if(ui.filterClassId){
+    list = list.filter(a => a.classId === ui.filterClassId);
+  } else {
+    // ana sayfa: tamamlanmis olanlari gizle (filtre yoksa)
+    list = list.filter(a => !isAssignmentFullyDone(a));
+  }
+  list.sort((a,b) => ui.sortDir==='asc' ? a.kontrol.localeCompare(b.kontrol) : b.kontrol.localeCompare(a.kontrol));
+
+  let listHtml;
+  if(list.length===0){
+    listHtml = `<div class="empty-state">${ICONS.empty}<div class="t">Henüz ödev yok</div><div class="s">Sağ alttaki + ile yeni ödev ekleyebilirsin.</div></div>`;
+  } else {
+    listHtml = '<div class="list">' + list.map(renderAssignmentCard).join('') + '</div>';
+  }
+
+  return `
+    <header class="top">
+      <div>
+        <h1>Ödevler</h1>
+      </div>
+      <div class="spacer"></div>
+      <div class="head-actions">
+        <div class="icon-round" data-action="backup" title="Yedekle">${ICONS.upload}</div>
+        <div class="icon-round" data-action="restore" title="Yükle">${ICONS.download}</div>
+      </div>
+    </header>
+    <div class="filters">${chips}</div>
+    ${listHtml}
+    <div class="fab" data-action="new-assignment" title="Yeni ödev ver">${ICONS.plus}</div>
+  `;
+}
+
+function renderAssignmentCard(a){
+  const cls = state.classes.find(c=>c.id===a.classId);
+  const color = colorForClass(a.classId);
+  const studs = assignedStudents(a);
+  const open = ui.openCardId === a.id;
+  const overdue = isOverdue(a);
+
+  const dateItemControl = overdue
+    ? `<div class="date-item overdue">${ICONS.warn}Gecikti · ${fmtTR(a.kontrol)}</div>`
+    : `<div class="date-item control">${ICONS.clock}${fmtTR(a.kontrol)}</div>`;
+
+  const studentsHtml = studs.length===0
+    ? `<div style="padding:10px 4px; font-size:13px; color:var(--label-secondary)">Bu sınıfta öğrenci yok.</div>`
+    : studs.map(s => {
+        const st = getStatus(a.id, s.id);
+        const late = isLate(a, s.id);
+        const icon = statusIcon(st.status);
+        const justSaved = ui.lastSavedKey === statusKey(a.id, s.id);
+        return `
+        <div class="student-row">
+          <span class="student-name">${esc(s.name)}</span>
+          <span class="status-pill status-${st.status===''?'empty':st.status} ${justSaved?'pill-saved':''}" data-action="cycle-status" data-aid="${a.id}" data-sid="${s.id}">
+            ${icon}${STATUS_LABEL[st.status]}${late ? `<span class="late-badge" title="Kontrol tarihinden sonra yapıldı">${ICONS.clockThin}</span>` : ''}${justSaved ? `<span class="saved-mark">${ICONS.check}</span>` : ''}
+          </span>
+        </div>`;
+      }).join('');
+
+  return `
+  <div class="acard ${open?'open':''}">
+    <div class="acard-head" data-action="toggle-card" data-id="${a.id}">
+      <div class="acard-body">
+        <div class="subject-tag" style="color:${color}; background:${hexToRgba(color,0.1)}">
+          ${ICONS.book}${esc(cls ? cls.name+' · '+cls.subject : '—')} · #${a.no||'?'}
+        </div>
+        <div class="konu">${esc(a.konu)}</div>
+        <div class="info-row">
+          <span class="kaynak-text">${esc(a.kaynak)}</span>
+          <span>·</span>
+          <span class="page-inline">${ICONS.pages}${esc(a.sayfa)}</span>
+        </div>
+        <div class="dates-row">
+          <div class="date-item">${ICONS.calendar}${fmtTR(a.verilis)}</div>
+          ${dateItemControl}
+        </div>
+      </div>
+      <div class="acard-actions">
+        <div class="icon-btn share" data-action="share-assignment" data-id="${a.id}" title="Paylaş">${ICONS.share}</div>
+        <div class="icon-btn edit" data-action="edit-assignment" data-id="${a.id}" title="Düzenle">${ICONS.edit}</div>
+        <div class="chevron">${ICONS.chevronDown}</div>
+      </div>
+    </div>
+    <div class="students"><div class="students-inner">${studentsHtml}</div></div>
+  </div>`;
+}
+
+/* ---------- SINIFLAR ---------- */
+function renderClasses(){
+  const rows = state.classes.map(c => {
+    const cnt = studentsOfClass(c.id).length;
+    const color = colorForClass(c.id);
+    return `
+    <div class="row-card" data-action="open-class" data-id="${c.id}">
+      <div class="avatar" style="background:${hexToRgba(color,0.12)};color:${color}">${esc(initials(c.name))}</div>
+      <div class="row-main">
+        <div class="row-title">${esc(c.name)}</div>
+        <div class="row-sub">${esc(c.subject)} · ${cnt} öğrenci</div>
+      </div>
+      <div class="row-actions">
+        <div class="icon-btn edit" data-action="edit-class" data-id="${c.id}" title="Düzenle">${ICONS.edit}</div>
+        <div class="icon-btn danger" data-action="delete-class" data-id="${c.id}" title="Sil">${ICONS.trash}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const listHtml = state.classes.length===0
+    ? `<div class="empty-state">${ICONS.peopleTab}<div class="t">Henüz sınıf yok</div><div class="s">Sağ alttaki + ile yeni sınıf ekleyebilirsin.</div></div>`
+    : `<div class="list">${rows}</div>`;
+
+  return `
+    <header class="top">
+      <div>
+        <h1>Sınıflar</h1>
+        <p class="sub">${state.classes.length} sınıf</p>
+      </div>
+    </header>
+    ${listHtml}
+    <div class="fab" data-action="new-class" title="Yeni sınıf">${ICONS.plus}</div>
+  `;
+}
+
+/* ---------- OGRENCILER ---------- */
+function renderStudents(){
+  const cls = state.classes.find(c=>c.id===ui.currentClassId);
+  if(!cls){ ui.view='classes'; return renderClasses(); }
+  const studs = studentsOfClass(cls.id);
+
+  const rows = studs.map(s => `
+    <div class="row-card" data-action="open-student-history" data-id="${s.id}">
+      <div class="avatar round">${esc(initials(s.name))}</div>
+      <div class="row-main"><div class="row-title">${esc(s.name)}</div></div>
+      <div class="row-actions">
+        <div class="icon-btn move" data-action="move-student" data-id="${s.id}" title="Sınıf değiştir">${ICONS.move}</div>
+        <div class="icon-btn edit" data-action="edit-student" data-id="${s.id}" title="Düzenle">${ICONS.edit}</div>
+        <div class="icon-btn danger" data-action="delete-student" data-id="${s.id}" title="Sil">${ICONS.trash}</div>
+      </div>
+    </div>`).join('');
+
+  const listHtml = studs.length===0
+    ? `<div class="empty-state">${ICONS.peopleTab}<div class="t">Bu sınıfta öğrenci yok</div><div class="s">Sağ alttaki + ile öğrenci ekleyebilirsin.</div></div>`
+    : `<div class="list"><div class="flat-list">${rows}</div></div>`;
+
+  return `
+    <header class="top">
+      <div class="back" data-action="go-tab" data-tab="siniflar">${ICONS.chevronLeft}</div>
+      <div>
+        <h1 style="font-size:24px">${esc(cls.name)}</h1>
+        <p class="sub">${esc(cls.subject)} · ${studs.length} öğrenci</p>
+      </div>
+    </header>
+    ${listHtml}
+    <div class="fab" data-action="new-student" title="Yeni öğrenci">${ICONS.plus}</div>
+  `;
+}
+
+/* ---------- OGRENCI GECMISI ---------- */
+function renderStudentHistory(){
+  const s = state.students.find(x=>x.id===ui.currentStudentId);
+  if(!s){ ui.view='classes'; return renderClasses(); }
+  const cls = state.classes.find(c=>c.id===s.classId);
+  const related = state.assignments.filter(a => (a.studentIds||[]).includes(s.id)).slice().sort((a,b)=>b.kontrol.localeCompare(a.kontrol));
+
+  let total=0, done=0, late=0, other=0;
+  const rows = related.map(a => {
+    const st = getStatus(a.id, s.id);
+    const aCls = state.classes.find(c=>c.id===a.classId);
+    total++;
+    const l = isLate(a, s.id);
+    if(st.status==='yapti'){ done++; if(l) late++; }
+    else if(st.status!=='') other++;
+    const icon = statusIcon(st.status);
+    return `
+    <div class="history-list-row">
+      <div class="history-main">
+        <div class="history-ders">${esc(aCls?aCls.name+' · '+aCls.subject:'')} · #${a.no||'?'}</div>
+        <div class="history-konu">${esc(a.konu)}</div>
+        <div class="history-date">Kontrol: ${fmtTRFull(a.kontrol)}</div>
+      </div>
+      <span class="status-pill status-${st.status===''?'empty':st.status}">
+        ${icon}${STATUS_LABEL[st.status]}${l ? `<span class="late-badge">${ICONS.clockThin}</span>` : ''}
+      </span>
+    </div>`;
+  }).join('');
+
+  const listHtml = related.length===0
+    ? `<div class="empty-state">${ICONS.empty}<div class="t">Kayıt yok</div><div class="s">Bu öğrenciye ait ödev bulunmuyor.</div></div>`
+    : `<div class="list"><div class="history-list">${rows}</div></div>`;
+
+  return `
+    <header class="top">
+      <div class="back" data-action="back-to-students" data-id="${s.classId}">${ICONS.chevronLeft}</div>
+      <div class="avatar round" style="width:44px;height:44px;font-size:16px">${esc(initials(s.name))}</div>
+      <div>
+        <h1 style="font-size:19px">${esc(s.name)}</h1>
+        <p class="sub">${cls?esc(cls.name)+' · '+esc(cls.subject):''}</p>
+      </div>
+      <div class="spacer"></div>
+      <div class="head-actions">
+        <div class="icon-round" data-action="share-student-history" data-id="${s.id}" title="Paylaş">${ICONS.share}</div>
+      </div>
+    </header>
+    <div class="stats-row">
+      <div class="stat-chip"><div class="stat-num">${total}</div><div class="stat-label">Toplam</div></div>
+      <div class="stat-chip"><div class="stat-num" style="color:var(--green)">${done}</div><div class="stat-label">Yaptı</div></div>
+      <div class="stat-chip"><div class="stat-num" style="color:var(--orange)">${late}</div><div class="stat-label">Geç Yaptı</div></div>
+      <div class="stat-chip"><div class="stat-num" style="color:var(--red)">${other}</div><div class="stat-label">Diğer</div></div>
+    </div>
+    ${listHtml}
+  `;
+}
+
+/* ---------- SHEETS (forms) ---------- */
+function renderSheet(){
+  const s = ui.sheet;
+  let inner = '';
+  if(s.type === 'assignment') inner = sheetAssignment(s);
+  else if(s.type === 'class') inner = sheetClass(s);
+  else if(s.type === 'student') inner = sheetStudent(s);
+  else if(s.type === 'moveStudent') inner = sheetMoveStudent(s);
+
+  return `<div class="sheet-backdrop" data-action="close-sheet"><div class="sheet-wrap"><div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    ${inner}
+  </div></div></div>`;
+}
+
+function renderConfirmSheet(){
+  const c = ui.confirmSheet;
+  return `<div class="sheet-backdrop" data-action="cancel-confirm"><div class="sheet-wrap"><div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">${esc(c.title||'Emin misin?')}</div>
+    <div class="sheet-sub">${esc(c.message||'')}</div>
+    <div class="btn-danger-solid" data-action="confirm-yes">${esc(c.confirmLabel||'Sil')}</div>
+    <div class="btn-secondary-outline" data-action="cancel-confirm">Vazgeç</div>
+  </div></div></div>`;
+}
+
+function classOptions(selectedId){
+  return state.classes.map(c => `<option value="${c.id}" ${c.id===selectedId?'selected':''}>${esc(c.name)} · ${esc(c.subject)}</option>`).join('');
+}
+
+function sheetAssignment(s){
+  const isNew = s.mode === 'new';
+  const a = isNew ? {classId: s.presetClassId || (state.classes[0]?state.classes[0].id:''), konu:'', kaynak:'', sayfa:'', verilis: todayStr(), kontrol: addDaysISO(todayStr(),7)}
+                  : state.assignments.find(x=>x.id===s.id);
+  if(!a) return '';
+  const cls = state.classes.find(c=>c.id===a.classId);
+  const classField = isNew
+    ? `<select id="f-classId">${classOptions(a.classId)}</select>`
+    : `<div class="field-static">${esc(cls?cls.name+' · '+cls.subject:'—')}</div>`;
+  return `
+    <div class="sheet-title">${isNew?'Yeni Ödev':'Ödevi Düzenle'}</div>
+    <div class="sheet-sub">${isNew?'Sınıfı seç ve ödev bilgilerini gir. Ödev numarası otomatik verilir.':'Ödev No: '+(a.no||'-')+' · Hatalı girilen bilgileri düzeltebilirsin.'}</div>
+    <div class="field">
+      <div class="field-label">Sınıf</div>
+      ${classField}
+    </div>
+    <div class="field">
+      <div class="field-label">Konu</div>
+      <input id="f-konu" type="text" value="${escAttr(a.konu)}" placeholder="Örn. Fonksiyonlarda Bileşke İşlemi">
+    </div>
+    <div class="field">
+      <div class="field-label">Kaynak</div>
+      <input id="f-kaynak" type="text" value="${escAttr(a.kaynak)}" placeholder="Örn. Sarıgül Yayınları Fasikül 4">
+    </div>
+    <div class="field">
+      <div class="field-label">Sayfa Aralığı</div>
+      <input id="f-sayfa" type="text" value="${escAttr(a.sayfa)}" placeholder="Örn. 42–47">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <div class="field-label">Veriliş Tarihi</div>
+        <input id="f-verilis" type="date" value="${a.verilis}">
+      </div>
+      <div class="field">
+        <div class="field-label">Kontrol Tarihi</div>
+        <input id="f-kontrol" type="date" value="${a.kontrol}">
+      </div>
+    </div>
+    <div class="btn-primary" data-action="save-assignment" data-mode="${s.mode}" data-id="${a.id||''}">Kaydet</div>
+    <div class="btn-secondary-outline" data-action="close-sheet">Vazgeç</div>
+    ${!isNew ? `<div class="danger-zone"><div class="btn-danger-outline" data-action="delete-assignment" data-id="${a.id}">Ödevi Sil</div></div>` : ''}
+  `;
+}
+
+function sheetClass(s){
+  const isNew = s.mode === 'new';
+  const c = isNew ? {name:'', subject:''} : state.classes.find(x=>x.id===s.id);
+  if(!c) return '';
+  return `
+    <div class="sheet-title">${isNew?'Yeni Sınıf':'Sınıfı Düzenle'}</div>
+    <div class="sheet-sub">Sınıf adı ve ders adı yanlış girildiyse buradan düzeltebilirsin.</div>
+    <div class="field">
+      <div class="field-label">Sınıf Adı</div>
+      <input id="f-name" type="text" value="${escAttr(c.name)}" placeholder="Örn. 9-A">
+    </div>
+    <div class="field">
+      <div class="field-label">Ders Adı</div>
+      <input id="f-subject" type="text" value="${escAttr(c.subject)}" placeholder="Örn. Matematik">
+    </div>
+    <div class="btn-primary" data-action="save-class" data-mode="${s.mode}" data-id="${c.id||''}">Kaydet</div>
+    <div class="btn-secondary-outline" data-action="close-sheet">Vazgeç</div>
+    ${!isNew ? `<div class="danger-zone"><div class="btn-danger-outline" data-action="delete-class" data-id="${c.id}">Sınıfı Sil</div></div>` : ''}
+  `;
+}
+
+function sheetStudent(s){
+  const isNew = s.mode === 'new';
+  const st = isNew ? {name:'', classId: s.presetClassId} : state.students.find(x=>x.id===s.id);
+  if(!st) return '';
+  return `
+    <div class="sheet-title">${isNew?'Yeni Öğrenci':'Öğrenciyi Düzenle'}</div>
+    <div class="sheet-sub">Ad soyad hatalıysa düzelt, gerekirse öğrenciyi başka bir sınıfa taşı.</div>
+    <div class="field">
+      <div class="field-label">Ad Soyad</div>
+      <input id="f-name" type="text" value="${escAttr(st.name)}" placeholder="Örn. Ada Yılmaz">
+    </div>
+    <div class="field">
+      <div class="field-label">Sınıf</div>
+      <select id="f-classId">${classOptions(st.classId)}</select>
+    </div>
+    <div class="btn-primary" data-action="save-student" data-mode="${s.mode}" data-id="${st.id||''}">Kaydet</div>
+    <div class="btn-secondary-outline" data-action="close-sheet">Vazgeç</div>
+    ${!isNew ? `<div class="danger-zone"><div class="btn-danger-outline" data-action="delete-student" data-id="${st.id}">Öğrenciyi Sil</div></div>` : ''}
+  `;
+}
+
+function sheetMoveStudent(s){
+  const st = state.students.find(x=>x.id===s.id);
+  if(!st) return '';
+  return `
+    <div class="sheet-title">Sınıf Değiştir</div>
+    <div class="sheet-sub">${esc(st.name)} adlı öğrenciyi hangi sınıfa taşımak istiyorsun? Geçmiş ödev durumları birlikte taşınır.</div>
+    <div class="field">
+      <div class="field-label">Yeni Sınıf</div>
+      <select id="f-classId">${classOptions(st.classId)}</select>
+    </div>
+    <div class="btn-primary" data-action="confirm-move-student" data-id="${st.id}">Taşı</div>
+    <div class="btn-secondary-outline" data-action="close-sheet">Vazgeç</div>
+  `;
+}
+
+/* ============ UTIL ============ */
+function esc(str){ return String(str==null?'':str).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function escAttr(str){ return esc(str).replace(/"/g,'&quot;'); }
+function toast(msg){
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(()=>{ el.remove(); }, 2200);
+}
+
+/* ============ EVENTS ============ */
+function attachEvents(){
+  app.querySelectorAll('[data-action]').forEach(el => {
+    el.addEventListener('click', onAction);
+  });
+}
+
+function onAction(e){
+  e.stopPropagation();
+  const el = e.currentTarget;
+  const action = el.getAttribute('data-action');
+  const id = el.getAttribute('data-id');
+
+  switch(action){
+    case 'go-tab': {
+      const tab = el.getAttribute('data-tab');
+      ui.tab = tab;
+      ui.view = tab==='odevler' ? 'home' : 'classes';
+      render();
+      break;
+    }
+    case 'toggle-card': {
+      ui.openCardId = (ui.openCardId === id) ? null : id;
+      render();
+      break;
+    }
+    case 'cycle-status': {
+      const aid = el.getAttribute('data-aid');
+      const sid = el.getAttribute('data-sid');
+      cycleStatus(aid, sid);
+      ui.lastSavedKey = statusKey(aid, sid);
+      render();
+      ui.lastSavedKey = null;
+      break;
+    }
+    case 'filter-class': {
+      ui.filterClassId = id || null;
+      render();
+      break;
+    }
+    case 'new-assignment': {
+      ui.sheet = { type:'assignment', mode:'new', presetClassId: ui.filterClassId };
+      render();
+      break;
+    }
+    case 'edit-assignment': {
+      ui.sheet = { type:'assignment', mode:'edit', id };
+      render();
+      break;
+    }
+    case 'save-assignment': {
+      saveAssignmentFromForm(el);
+      break;
+    }
+    case 'delete-assignment': {
+      ui.confirmSheet = { title:'Ödevi Sil', message:'Bu ödevi silmek istediğine emin misin? Bu işlem geri alınamaz.', confirmLabel:'Ödevi Sil', actionType:'delete-assignment', id };
+      render();
+      break;
+    }
+    case 'share-assignment': {
+      shareAssignment(id);
+      break;
+    }
+    case 'share-student-history': {
+      shareStudentHistory(id);
+      break;
+    }
+    case 'new-class': {
+      ui.sheet = { type:'class', mode:'new' };
+      render();
+      break;
+    }
+    case 'edit-class': {
+      ui.sheet = { type:'class', mode:'edit', id };
+      render();
+      break;
+    }
+    case 'save-class': {
+      saveClassFromForm(el);
+      break;
+    }
+    case 'delete-class': {
+      const hasStudents = studentsOfClass(id).length > 0;
+      const message = hasStudents
+        ? 'Bu sınıfta öğrenciler var. Sınıfı ve tüm öğrenci/ödev kayıtlarını silmek istediğine emin misin? Bu işlem geri alınamaz.'
+        : 'Bu sınıfı silmek istediğine emin misin? Bu işlem geri alınamaz.';
+      ui.confirmSheet = { title:'Sınıfı Sil', message, confirmLabel:'Sınıfı Sil', actionType:'delete-class', id };
+      render();
+      break;
+    }
+    case 'open-class': {
+      ui.currentClassId = id;
+      ui.view = 'students';
+      render();
+      break;
+    }
+    case 'new-student': {
+      ui.sheet = { type:'student', mode:'new', presetClassId: ui.currentClassId };
+      render();
+      break;
+    }
+    case 'edit-student': {
+      ui.sheet = { type:'student', mode:'edit', id };
+      render();
+      break;
+    }
+    case 'save-student': {
+      saveStudentFromForm(el);
+      break;
+    }
+    case 'delete-student': {
+      ui.confirmSheet = { title:'Öğrenciyi Sil', message:'Bu öğrenciyi silmek istediğine emin misin? Bu işlem geri alınamaz.', confirmLabel:'Öğrenciyi Sil', actionType:'delete-student', id };
+      render();
+      break;
+    }
+    case 'move-student': {
+      ui.sheet = { type:'moveStudent', id };
+      render();
+      break;
+    }
+    case 'confirm-move-student': {
+      const sel = document.getElementById('f-classId');
+      const newClassId = sel.value;
+      const st = state.students.find(x=>x.id===id);
+      if(st){ st.classId = newClassId; saveState(); }
+      ui.sheet = null;
+      toast('Öğrenci taşındı.');
+      render();
+      break;
+    }
+    case 'open-student-history': {
+      ui.currentStudentId = id;
+      ui.view = 'studentHistory';
+      render();
+      break;
+    }
+    case 'back-to-students': {
+      ui.currentClassId = id;
+      ui.view = 'students';
+      render();
+      break;
+    }
+    case 'cancel-confirm': {
+      ui.confirmSheet = null;
+      pendingImportData = null;
+      render();
+      break;
+    }
+    case 'confirm-yes': {
+      const c = ui.confirmSheet;
+      if(!c) break;
+      const cid = c.id;
+      if(c.actionType === 'delete-assignment'){
+        state.assignments = state.assignments.filter(a=>a.id!==cid);
+        Object.keys(state.statuses).forEach(k=>{ if(k.startsWith(cid+'::')) delete state.statuses[k]; });
+        saveState(); ui.sheet=null;
+      } else if(c.actionType === 'delete-class'){
+        state.classes = state.classes.filter(cl=>cl.id!==cid);
+        const removedStudentIds = state.students.filter(s=>s.classId===cid).map(s=>s.id);
+        state.students = state.students.filter(s=>s.classId!==cid);
+        state.assignments = state.assignments.filter(a=>a.classId!==cid);
+        Object.keys(state.statuses).forEach(k=>{
+          const [aid,sid] = k.split('::');
+          if(removedStudentIds.includes(sid)) delete state.statuses[k];
+        });
+        saveState(); ui.sheet=null;
+        if(ui.currentClassId===cid){ ui.view='classes'; }
+      } else if(c.actionType === 'delete-student'){
+        state.students = state.students.filter(s=>s.id!==cid);
+        Object.keys(state.statuses).forEach(k=>{ if(k.endsWith('::'+cid)) delete state.statuses[k]; });
+        saveState(); ui.sheet=null;
+      } else if(c.actionType === 'restore-confirm' && pendingImportData){
+        const data = pendingImportData;
+        state = { classes: data.classes||[], students: data.students||[], assignments: data.assignments||[], statuses: data.statuses||{} };
+        saveState();
+        ui.filterClassId = null; ui.openCardId = null; ui.sheet = null; ui.view='home'; ui.tab='odevler';
+        pendingImportData = null;
+        toast('Yedek başarıyla yüklendi.');
+      }
+      ui.confirmSheet = null;
+      render();
+      break;
+    }
+    case 'close-sheet': {
+      ui.sheet = null;
+      render();
+      break;
+    }
+    case 'backup': {
+      backupData();
+      break;
+    }
+    case 'restore': {
+      document.getElementById('importFile').click();
+      break;
+    }
+  }
+}
+
+function saveAssignmentFromForm(btn){
+  const mode = btn.getAttribute('data-mode');
+  const id = btn.getAttribute('data-id');
+  const existing = mode==='edit' ? state.assignments.find(x=>x.id===id) : null;
+  const classIdEl = document.getElementById('f-classId');
+  const classId = classIdEl ? classIdEl.value : (existing ? existing.classId : '');
+  const konu = document.getElementById('f-konu').value.trim();
+  const kaynak = document.getElementById('f-kaynak').value.trim();
+  const sayfa = document.getElementById('f-sayfa').value.trim();
+  const verilis = document.getElementById('f-verilis').value;
+  const kontrol = document.getElementById('f-kontrol').value;
+
+  if(!classId){ toast('Önce bir sınıf oluşturmalısın.'); return; }
+  if(!konu){ toast('Konu boş olamaz.'); return; }
+
+  if(mode==='new'){
+    const no = nextAssignmentNo(classId);
+    const studentIds = studentsOfClass(classId).map(s=>s.id);
+    state.assignments.push({ id: uid(), classId, no, studentIds, konu, kaynak, sayfa, verilis, kontrol });
+  } else if(existing){
+    Object.assign(existing, {konu, kaynak, sayfa, verilis, kontrol});
+  }
+  saveState();
+  ui.sheet = null;
+  render();
+}
+
+function saveClassFromForm(btn){
+  const mode = btn.getAttribute('data-mode');
+  const id = btn.getAttribute('data-id');
+  const name = document.getElementById('f-name').value.trim();
+  const subject = document.getElementById('f-subject').value.trim();
+  if(!name || !subject){ toast('Sınıf adı ve ders adı zorunlu.'); return; }
+
+  if(mode==='new'){
+    state.classes.push({ id: uid(), name, subject });
+  } else {
+    const c = state.classes.find(x=>x.id===id);
+    if(c){ c.name = name; c.subject = subject; }
+  }
+  saveState();
+  ui.sheet = null;
+  render();
+}
+
+function saveStudentFromForm(btn){
+  const mode = btn.getAttribute('data-mode');
+  const id = btn.getAttribute('data-id');
+  const name = document.getElementById('f-name').value.trim();
+  const classId = document.getElementById('f-classId').value;
+  if(!name){ toast('Ad soyad boş olamaz.'); return; }
+  if(!classId){ toast('Önce bir sınıf oluşturmalısın.'); return; }
+
+  if(mode==='new'){
+    state.students.push({ id: uid(), name, classId });
+  } else {
+    const s = state.students.find(x=>x.id===id);
+    if(s){ s.name = name; s.classId = classId; }
+  }
+  saveState();
+  ui.sheet = null;
+  render();
+}
+
+/* ============ SHARE ============ */
+const DIVIDER = '─────────────────';
+const TR_DAYS = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+function fmtTRFullDay(iso){
+  if(!iso) return '';
+  const d = new Date(iso+'T00:00:00');
+  return d.getDate()+' '+TR_MONTHS[d.getMonth()]+' '+d.getFullYear()+' '+TR_DAYS[d.getDay()];
+}
+function assignmentTitleLine(a){
+  const cls = state.classes.find(c=>c.id===a.classId);
+  return `${cls?cls.name+' '+cls.subject:''} Ödevi${a.no?' #'+a.no:''}`;
+}
+
+function buildAssignmentShareText(a){
+  return [
+    `📚 ÖDEV BİLDİRİMİ`,
+    `${assignmentTitleLine(a)}`,
+    DIVIDER,
+    `Konu: ${a.konu}`,
+    `Kaynak: ${a.kaynak}`,
+    `Sayfa: ${a.sayfa}`,
+    ``,
+    `📅 Veriliş: ${fmtTRFullDay(a.verilis)}`,
+    `⏰ Kontrol: ${fmtTRFullDay(a.kontrol)}`
+  ].join('\n');
+}
+
+const STATUS_TEXT_ICON = { yapti:'✅', yapmadi:'❌', eksik:'◻️', gelmedi:'👤', kitabi_yok:'📕', '':'⬜' };
+const STATUS_SHARE_LABEL = Object.assign({}, STATUS_LABEL, { '':'Kontrol Edilmedi' });
+
+function buildResultsShareText(a){
+  const studs = assignedStudents(a).slice().sort((x,y)=>x.name.localeCompare(y.name,'tr'));
+  const studentLines = studs.map(s => {
+    const st = getStatus(a.id, s.id);
+    const late = isLate(a, s.id);
+    const icon = STATUS_TEXT_ICON[st.status];
+    return `${icon} ${s.name} — ${STATUS_SHARE_LABEL[st.status]}${late ? ' (geç)' : ''}`;
+  });
+
+  return [
+    `📋 ÖDEV SONUÇLARI`,
+    `${assignmentTitleLine(a)}`,
+    DIVIDER,
+    `Konu: ${a.konu}`,
+    `Kaynak: ${a.kaynak}`,
+    `Sayfa: ${a.sayfa}`,
+    `⏰ Kontrol: ${fmtTRFullDay(a.kontrol)}`,
+    DIVIDER,
+    ...studentLines
+  ].join('\n');
+}
+
+function buildStudentHistoryShareText(studentId){
+  const s = state.students.find(x=>x.id===studentId);
+  if(!s) return '';
+  const cls = state.classes.find(c=>c.id===s.classId);
+  const related = state.assignments.filter(a => (a.studentIds||[]).includes(s.id)).slice().sort((a,b)=>a.kontrol.localeCompare(b.kontrol));
+
+  let done=0, late=0, other=0;
+  const itemLines = related.map((a,i) => {
+    const st = getStatus(a.id, s.id);
+    const l = isLate(a, s.id);
+    const aCls = state.classes.find(c=>c.id===a.classId);
+    if(st.status==='yapti'){ done++; if(l) late++; } else if(st.status!=='') other++;
+    const no = a.no ? '#'+a.no+' ' : '';
+    const clsTag = aCls ? `[${aCls.name} ${aCls.subject}] ` : '';
+    return `${i+1}) ${clsTag}${no}${a.konu} — ${STATUS_LABEL[st.status]}${l?' (geç)':''}\n   Kontrol: ${fmtTRFullDay(a.kontrol)}`;
+  });
+
+  return [
+    `👤 ${s.name} — Ödev Geçmişi`,
+    `${cls?cls.name+' '+cls.subject:''}`,
+    DIVIDER,
+    `Toplam: ${related.length} · Yaptı: ${done} (${late} geç) · Diğer: ${other}`,
+    DIVIDER,
+    ...itemLines
+  ].join('\n');
+}
+
+async function shareText(text){
+  if(navigator.share){
+    try{ await navigator.share({ text }); return; }catch(e){ /* cancelled or failed, fall through */ }
+  }
+  try{
+    await navigator.clipboard.writeText(text);
+    toast('Panoya kopyalandı, WhatsApp\'ta yapıştırabilirsin.');
+  }catch(e){
+    toast('Paylaşım desteklenmiyor, metni elle kopyala.');
+  }
+}
+
+async function shareAssignment(id){
+  const a = state.assignments.find(x=>x.id===id);
+  if(!a) return;
+  const anyStatus = assignedStudents(a).some(s => getStatus(a.id,s.id).status !== '');
+  const text = anyStatus ? buildResultsShareText(a) : buildAssignmentShareText(a);
+  await shareText(text);
+}
+
+async function shareStudentHistory(studentId){
+  const text = buildStudentHistoryShareText(studentId);
+  if(text) await shareText(text);
+}
+
+
+
+
+/* ============ BACKUP / RESTORE ============ */
+let pendingImportData = null;
+
+function backupData(){
+  const payload = JSON.stringify(state, null, 2);
+  const blob = new Blob([payload], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = todayStr();
+  a.href = url;
+  a.download = `odev-takip-yedek-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  toast('Yedek dosyası indirildi.');
+}
+
+document.getElementById('importFile').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    try{
+      const data = JSON.parse(evt.target.result);
+      if(!data.classes || !data.students || !data.assignments){ throw new Error('invalid'); }
+      pendingImportData = data;
+      ui.confirmSheet = { title:'Yedek Yükle', message:'Mevcut tüm veriler yedek dosyasındaki verilerle değiştirilecek. Devam edilsin mi?', confirmLabel:'Yükle ve Değiştir', actionType:'restore-confirm' };
+      render();
+    }catch(err){
+      toast('Dosya okunamadı. Geçerli bir yedek dosyası seçtiğinden emin ol.');
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+/* ============ INIT ============ */
+render();
+</script>
+</body>
+</html>
