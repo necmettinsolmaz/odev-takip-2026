@@ -540,6 +540,7 @@ function renderStudentHistory(){
     if(st.status==='yapti'){ done++; if(l) late++; }
     else if(st.status!=='') other++;
     const icon = statusIcon(st.status);
+    const justSaved = ui.lastSavedKey === statusKey(a.id, s.id);
     return `
     <div class="history-list-row">
       <div class="history-main">
@@ -547,8 +548,8 @@ function renderStudentHistory(){
         <div class="history-konu">${esc(a.konu)}</div>
         <div class="history-date">Kontrol: ${fmtTRFull(a.kontrol)}</div>
       </div>
-      <span class="status-pill status-${st.status===''?'empty':st.status}">
-        ${icon}${STATUS_LABEL[st.status]}${l ? `<span class="late-badge">${ICONS.clockThin}</span>` : ''}
+      <span class="status-pill status-${st.status===''?'empty':st.status} ${justSaved?'pill-saved':''}" data-action="cycle-status" data-aid="${a.id}" data-sid="${s.id}">
+        ${icon}${STATUS_LABEL[st.status]}${l ? `<span class="late-badge">${ICONS.clockThin}</span>` : ''}${justSaved ? `<span class="saved-mark">${ICONS.check}</span>` : ''}
       </span>
     </div>`;
   }).join('');
