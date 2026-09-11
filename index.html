@@ -87,7 +87,7 @@ header.top .head-actions{ display:flex; gap:8px; }
 .hist-bar.status-gelmedi{ background:var(--purple); }
 .hist-bar.status-kitabi_yok{ background:var(--teal); }
 .hist-bar.status-empty{ background:var(--gray-fill); }
-.hist-legend{ display:flex; flex-wrap:wrap; gap:10px; padding:12px 4px 2px 4px; font-size:11px; color:var(--label-secondary); }
+.hist-legend{ display:flex; flex-wrap:wrap; gap:10px; padding:12px 4px 2px 4px; margin-top:2px; border-top:1px solid var(--separator); font-size:11px; color:var(--label-secondary); }
 .hist-legend .dot{ width:8px; height:8px; border-radius:2px; display:inline-block; margin-right:4px; vertical-align:-1px; }
 .status-pill{ display:flex; align-items:center; gap:5px; font-size:13px; font-weight:600; padding:6px 12px; border-radius:14px; cursor:pointer; user-select:none; white-space:nowrap; }
 .status-pill svg{ width:12px;height:12px; }
@@ -458,6 +458,16 @@ function renderAssignmentCard(a){
         </div>`;
       }).join('');
 
+  const anyHistory = studs.some(s => studentHistoryEntries(s.id, a, 1).length > 0);
+  const historyLegend = !anyHistory ? '' : `
+    <div class="hist-legend">
+      <span><span class="dot" style="background:var(--green)"></span>Yaptı</span>
+      <span><span class="dot" style="background:var(--red)"></span>Yapmadı</span>
+      <span><span class="dot" style="background:var(--orange)"></span>Eksik</span>
+      <span><span class="dot" style="background:var(--purple)"></span>Gelmedi</span>
+      <span><span class="dot" style="background:var(--teal)"></span>Kitabı Yok</span>
+    </div>`;
+
   return `
   <div class="acard ${open?'open':''} ${fullyDone?'completed-view':''} ${isCompleting?'completing':''}">
     <div class="acard-head" data-action="toggle-card" data-id="${a.id}">
@@ -485,7 +495,7 @@ function renderAssignmentCard(a){
         <div class="chevron">${ICONS.chevronDown}</div>
       </div>
     </div>
-    <div class="students"><div class="students-inner">${studentsHtml}</div></div>
+    <div class="students"><div class="students-inner">${studentsHtml}${historyLegend}</div></div>
   </div>`;
 }
 
