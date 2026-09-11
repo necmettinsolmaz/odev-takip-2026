@@ -75,9 +75,20 @@ header.top .head-actions{ display:flex; gap:8px; }
 .students{ max-height:0; overflow:hidden; transition:max-height 0.3s ease; }
 .acard.open .students{ max-height:1000px; }
 .students-inner{ padding:4px 16px 16px 16px; display:flex; flex-direction:column; }
-.student-row{ display:flex; justify-content:space-between; align-items:center; padding:11px 4px; border-top:1px solid var(--separator); }
+.student-row{ padding:11px 4px; border-top:1px solid var(--separator); }
 .student-row:first-child{ border-top:none; padding-top:8px; }
+.student-row-top{ display:flex; justify-content:space-between; align-items:center; }
 .student-name{ font-size:15px; font-weight:500; }
+.hist-strip{ display:flex; gap:3px; margin-top:6px; }
+.hist-bar{ width:16px; height:7px; border-radius:2px; flex-shrink:0; }
+.hist-bar.status-yapti{ background:var(--green); }
+.hist-bar.status-yapmadi{ background:var(--red); }
+.hist-bar.status-eksik{ background:var(--orange); }
+.hist-bar.status-gelmedi{ background:var(--purple); }
+.hist-bar.status-kitabi_yok{ background:var(--teal); }
+.hist-bar.status-empty{ background:var(--gray-fill); }
+.hist-legend{ display:flex; flex-wrap:wrap; gap:10px; padding:12px 4px 2px 4px; font-size:11px; color:var(--label-secondary); }
+.hist-legend .dot{ width:8px; height:8px; border-radius:2px; display:inline-block; margin-right:4px; vertical-align:-1px; }
 .status-pill{ display:flex; align-items:center; gap:5px; font-size:13px; font-weight:600; padding:6px 12px; border-radius:14px; cursor:pointer; user-select:none; white-space:nowrap; }
 .status-pill svg{ width:12px;height:12px; }
 .status-empty{ background:var(--gray-fill); color:var(--label-secondary); }
@@ -294,6 +305,25 @@ function isLate(a, sId){
   return st.status==='yapti' && st.doneAt && st.doneAt > a.kontrol;
 }
 
+function studentHistoryEntries(studentId, currentAssignment, limit){
+  const related = state.assignments
+    .filter(a =>
+      (a.studentIds||[]).includes(studentId) &&
+      a.classId === currentAssignment.classId &&
+      (a.no||0) < (currentAssignment.no||0)
+    )
+    .slice()
+    .sort((a,b) => (a.no||0) - (b.no||0));
+  return related.slice(-limit).map(a => getStatus(a.id, studentId).status);
+}
+
+function renderHistStrip(studentId, currentAssignment){
+  const statuses = studentHistoryEntries(studentId, currentAssignment, 10);
+  if(statuses.length === 0) return '';
+  const bars = statuses.map(st => `<div class="hist-bar status-${st===''?'empty':st}"></div>`).join('');
+  return `<div class="hist-strip">${bars}</div>`;
+}
+
 /* ============ ICONS ============ */
 const ICONS = {
   chevronDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
@@ -418,10 +448,13 @@ function renderAssignmentCard(a){
         const justSaved = ui.lastSavedKey === statusKey(a.id, s.id);
         return `
         <div class="student-row">
-          <span class="student-name">${esc(s.name)}</span>
-          <span class="status-pill status-${st.status===''?'empty':st.status} ${justSaved?'pill-saved':''}" data-action="cycle-status" data-aid="${a.id}" data-sid="${s.id}">
-            ${icon}${STATUS_LABEL[st.status]}${late ? `<span class="late-badge" title="Kontrol tarihinden sonra yapıldı">${ICONS.clockThin}</span>` : ''}${justSaved ? `<span class="saved-mark">${ICONS.check}</span>` : ''}
-          </span>
+          <div class="student-row-top">
+            <span class="student-name">${esc(s.name)}</span>
+            <span class="status-pill status-${st.status===''?'empty':st.status} ${justSaved?'pill-saved':''}" data-action="cycle-status" data-aid="${a.id}" data-sid="${s.id}">
+              ${icon}${STATUS_LABEL[st.status]}${late ? `<span class="late-badge" title="Kontrol tarihinden sonra yapıldı">${ICONS.clockThin}</span>` : ''}${justSaved ? `<span class="saved-mark">${ICONS.check}</span>` : ''}
+            </span>
+          </div>
+          ${renderHistStrip(s.id, a)}
         </div>`;
       }).join('');
 
