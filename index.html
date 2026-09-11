@@ -148,11 +148,11 @@ header.top .head-actions{ display:flex; gap:8px; }
 }
 .field-row{ display:flex; gap:10px; }
 .field-row .field{ flex:1; }
-.btn-primary{ background:var(--blue); color:#fff; text-align:center; padding:14px; border-radius:14px; font-size:15.5px; font-weight:700; margin-top:8px; cursor:pointer; }
+.btn-primary{ background:var(--blue); color:#fff; text-align:center; padding:14px; border-radius:14px; font-size:15.5px; font-weight:700; margin-top:6px; cursor:pointer; }
 .btn-danger-solid{ background:var(--red); color:#fff; text-align:center; padding:14px; border-radius:14px; font-size:15.5px; font-weight:700; margin-top:8px; cursor:pointer; }
-.btn-danger-outline{ text-align:center; padding:12px; border-radius:14px; font-size:14.5px; font-weight:500; color:var(--red); cursor:pointer; }
-.btn-secondary-outline{ text-align:center; padding:14px; border-radius:14px; font-size:14.5px; font-weight:600; color:var(--label-secondary); margin-top:4px; cursor:pointer; }
-.danger-zone{ margin-top:20px; padding-top:14px; border-top:1px solid var(--separator); }
+.btn-secondary-outline{ text-align:center; padding:12px; border-radius:14px; font-size:14.5px; font-weight:600; color:var(--label-secondary); cursor:pointer; flex:1; }
+.bottom-actions-row{ display:flex; gap:8px; align-items:stretch; margin-top:8px; }
+.btn-danger-small{ flex:0 0 auto; display:flex; align-items:center; justify-content:center; padding:0 16px; border-radius:14px; font-size:13px; font-weight:600; color:var(--red); background:rgba(255,59,48,0.08); cursor:pointer; }
 
 /* Student history screen */
 .stats-row{ display:flex; gap:8px; padding:6px 16px 14px 16px; }
@@ -513,7 +513,6 @@ function renderClasses(){
       </div>
       <div class="row-actions">
         <div class="icon-btn edit" data-action="edit-class" data-id="${c.id}" title="Düzenle">${ICONS.edit}</div>
-        <div class="icon-btn danger" data-action="delete-class" data-id="${c.id}" title="Sil">${ICONS.trash}</div>
       </div>
     </div>`;
   }).join('');
@@ -546,7 +545,6 @@ function renderStudents(){
       <div class="row-main"><div class="row-title">${esc(s.name)}</div></div>
       <div class="row-actions">
         <div class="icon-btn edit" data-action="edit-student" data-id="${s.id}" title="Düzenle">${ICONS.edit}</div>
-        <div class="icon-btn danger" data-action="delete-student" data-id="${s.id}" title="Sil">${ICONS.trash}</div>
       </div>
     </div>`).join('');
 
@@ -692,8 +690,10 @@ function sheetAssignment(s){
       </div>
     </div>
     <div class="btn-primary" data-action="save-assignment" data-mode="${s.mode}" data-id="${a.id||''}">Kaydet</div>
-    <div class="btn-secondary-outline" data-action="close-sheet">Vazgeç</div>
-    ${!isNew ? `<div class="danger-zone"><div class="btn-danger-outline" data-action="delete-assignment" data-id="${a.id}">Ödevi Sil</div></div>` : ''}
+    <div class="bottom-actions-row">
+      ${!isNew ? `<div class="btn-danger-small" data-action="delete-assignment" data-id="${a.id}">Sil</div>` : ''}
+      <div class="btn-secondary-outline" data-action="close-sheet">Vazgeç</div>
+    </div>
   `;
 }
 
@@ -713,8 +713,10 @@ function sheetClass(s){
       <input id="f-subject" type="text" value="${escAttr(c.subject)}" placeholder="Örn. Matematik">
     </div>
     <div class="btn-primary" data-action="save-class" data-mode="${s.mode}" data-id="${c.id||''}">Kaydet</div>
-    <div class="btn-secondary-outline" data-action="close-sheet">Vazgeç</div>
-    ${!isNew ? `<div class="danger-zone"><div class="btn-danger-outline" data-action="delete-class" data-id="${c.id}">Sınıfı Sil</div></div>` : ''}
+    <div class="bottom-actions-row">
+      ${!isNew ? `<div class="btn-danger-small" data-action="delete-class" data-id="${c.id}">Sil</div>` : ''}
+      <div class="btn-secondary-outline" data-action="close-sheet">Vazgeç</div>
+    </div>
   `;
 }
 
@@ -734,8 +736,10 @@ function sheetStudent(s){
       <select id="f-classId">${classOptions(st.classId)}</select>
     </div>
     <div class="btn-primary" data-action="save-student" data-mode="${s.mode}" data-id="${st.id||''}">Kaydet</div>
-    <div class="btn-secondary-outline" data-action="close-sheet">Vazgeç</div>
-    ${!isNew ? `<div class="danger-zone"><div class="btn-danger-outline" data-action="delete-student" data-id="${st.id}">Öğrenciyi Sil</div></div>` : ''}
+    <div class="bottom-actions-row">
+      ${!isNew ? `<div class="btn-danger-small" data-action="delete-student" data-id="${st.id}">Sil</div>` : ''}
+      <div class="btn-secondary-outline" data-action="close-sheet">Vazgeç</div>
+    </div>
   `;
 }
 
