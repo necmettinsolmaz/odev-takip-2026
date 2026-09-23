@@ -396,9 +396,13 @@ function renderHome(){
     list = list.filter(a => a.classId === ui.filterClassId);
   } else {
     // ana sayfa: tamamlanmis olanlari gizle (filtre yoksa)
-    list = list.filter(a => !isAssignmentFullyDone(a) || a.id === ui.completingId);
+    list = list.filter(a => !isAssignmentFullyDone(a) || a.id === ui.completingId || a.id === ui.openCardId);
   }
-  list.sort((a,b) => ui.sortDir==='asc' ? a.kontrol.localeCompare(b.kontrol) : b.kontrol.localeCompare(a.kontrol));
+  list.sort((a,b) => {
+    const dateCmp = b.verilis.localeCompare(a.verilis);
+    if(dateCmp !== 0) return dateCmp;
+    return (b.no||0) - (a.no||0);
+  });
 
   let listHtml;
   if(list.length===0){
@@ -572,13 +576,14 @@ function renderStudentHistory(){
   const cls = state.classes.find(c=>c.id===s.classId);
   const related = state.assignments.filter(a => (a.studentIds||[]).includes(s.id)).slice().sort((a,b)=>b.kontrol.localeCompare(a.kontrol));
 
-  let total=0, done=0, late=0, other=0;
+  let total=0, done=0, yapmadi=0, other=0, late=0;
   const rows = related.map(a => {
     const st = getStatus(a.id, s.id);
     const aCls = state.classes.find(c=>c.id===a.classId);
     total++;
     const l = isLate(a, s.id);
     if(st.status==='yapti'){ done++; if(l) late++; }
+    else if(st.status==='yapmadi'){ yapmadi++; }
     else if(st.status!=='') other++;
     const icon = statusIcon(st.status);
     const justSaved = ui.lastSavedKey === statusKey(a.id, s.id);
@@ -614,9 +619,9 @@ function renderStudentHistory(){
     </header>
     <div class="stats-row">
       <div class="stat-chip"><div class="stat-num">${total}</div><div class="stat-label">Toplam</div></div>
-      <div class="stat-chip"><div class="stat-num" style="color:var(--green)">${done}</div><div class="stat-label">Yaptı</div></div>
-      <div class="stat-chip"><div class="stat-num" style="color:var(--orange)">${late}</div><div class="stat-label">Geç Yaptı</div></div>
-      <div class="stat-chip"><div class="stat-num" style="color:var(--red)">${other}</div><div class="stat-label">Diğer</div></div>
+      <div class="stat-chip"><div class="stat-num" style="color:var(--green)">${done}</div><div class="stat-label">Yaptı${late>0?' ('+late+' geç)':''}</div></div>
+      <div class="stat-chip"><div class="stat-num" style="color:var(--red)">${yapmadi}</div><div class="stat-label">Yapmadı</div></div>
+      <div class="stat-chip"><div class="stat-num" style="color:var(--orange)">${other}</div><div class="stat-label">Diğer</div></div>
     </div>
     ${listHtml}
   `;
@@ -772,37 +777,36 @@ function onAction(e){
       const tab = el.getAttribute('data-tab');
       ui.tab = tab;
       ui.view = tab==='odevler' ? 'home' : 'classes';
+      ui.openCardId = null;
       render();
       break;
     }
     case 'toggle-card': {
-      ui.openCardId = (ui.openCardId === id) ? null : id;
+      const prevOpenId = ui.openCardId;
+      const newOpenId = (ui.openCardId === id) ? null : id;
+      ui.openCardId = newOpenId;
+
+      if(prevOpenId && prevOpenId !== newOpenId){
+        const a = state.assignments.find(x=>x.id===prevOpenId);
+        if(a && isAssignmentFullyDone(a) && ui.tab==='odevler' && !ui.filterClassId){
+          ui.completingId = prevOpenId;
+          render();
+          const cls = state.classes.find(c=>c.id===a.classId);
+          toast(`🎉 ${cls?cls.name+' '+cls.subject:''} Ödevi${a.no?' #'+a.no:''} tamamlandı!`);
+          setTimeout(()=>{ ui.completingId = null; render(); }, 650);
+          break;
+        }
+      }
       render();
       break;
     }
     case 'cycle-status': {
       const aid = el.getAttribute('data-aid');
       const sid = el.getAttribute('data-sid');
-      const a = state.assignments.find(x=>x.id===aid);
-      const wasFullyDone = a ? isAssignmentFullyDone(a) : false;
       cycleStatus(aid, sid);
       ui.lastSavedKey = statusKey(aid, sid);
-      const nowFullyDone = a ? isAssignmentFullyDone(a) : false;
-
-      if(a && !wasFullyDone && nowFullyDone && ui.tab==='odevler' && !ui.filterClassId){
-        const cls = state.classes.find(c=>c.id===a.classId);
-        ui.completingId = aid;
-        render();
-        ui.lastSavedKey = null;
-        toast(`🎉 ${cls?cls.name+' '+cls.subject:''} Ödevi${a.no?' #'+a.no:''} tamamlandı!`);
-        setTimeout(()=>{
-          ui.completingId = null;
-          render();
-        }, 650);
-      } else {
-        render();
-        ui.lastSavedKey = null;
-      }
+      render();
+      ui.lastSavedKey = null;
       break;
     }
     case 'filter-class': {
