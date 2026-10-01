@@ -46,6 +46,12 @@ header.top .head-actions{ display:flex; gap:8px; }
 
 /* Assignment card */
 .acard{ background:var(--card); border-radius:18px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.04), 0 8px 20px rgba(0,0,0,0.03); }
+.list-info{ padding:0 20px 10px 20px; font-size:13px; font-weight:500; color:var(--label-secondary); }
+.completed-toggle{ display:flex; justify-content:space-between; align-items:center; margin:8px 16px 0 16px; padding:14px 4px; border-top:1px solid var(--separator); font-size:14px; font-weight:600; color:var(--label-secondary); cursor:pointer; user-select:none; }
+.completed-toggle .chev{ display:flex; transition:transform 0.2s ease; }
+.completed-toggle .chev svg{ width:16px; height:16px; }
+.completed-toggle.open .chev{ transform:rotate(180deg); }
+.completed-toggle + .list{ padding-top:4px; }
 .acard.completed-view{ opacity:0.6; }
 @keyframes cardCompleteFade{ 0%{ opacity:1; transform:scale(1); } 100%{ opacity:0; transform:scale(0.95); } }
 .acard.completing{ animation: cardCompleteFade 0.6s ease forwards; pointer-events:none; }
@@ -134,8 +140,10 @@ header.top .head-actions{ display:flex; gap:8px; }
 .sheet-backdrop .sheet-wrap{ max-width:480px; margin:0 auto; width:100%; }
 .sheet{ background:var(--card); width:100%; border-radius:22px 22px 0 0; padding:10px 20px max(28px, env(safe-area-inset-bottom)) 20px; max-height:88vh; overflow-y:auto; }
 .sheet-handle{ width:36px;height:5px;border-radius:3px; background:var(--gray-fill); margin:6px auto 16px auto; }
-.sheet-title{ font-size:19px; font-weight:700; margin:0 0 4px 0; }
+.sheet-title{ font-size:19px; font-weight:700; margin:0 0 18px 0; }
 .sheet-sub{ font-size:13px; color:var(--label-secondary); margin:0 0 18px 0; }
+.sheet-title-row{ display:flex; align-items:center; gap:8px; margin:0 0 18px 0; }
+.sheet-title-row .sheet-title{ margin:0; }
 .field{ margin-bottom:14px; }
 .field-label{ font-size:12px; font-weight:600; color:var(--label-secondary); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:7px; }
 .field input, .field select{
@@ -255,6 +263,8 @@ let ui = {
   currentClassId: null,
   currentStudentId: null,
   filterClassId: null,
+  showCompleted: false,
+  openCardGroup: null,
   sortDir: 'asc',
   openCardId: null,
   sheet: null, // {type:'assignment'|'class'|'student', mode:'new'|'edit', id}
@@ -391,24 +401,59 @@ function renderHome(){
   const chips = ['<div class="chip ' + (ui.filterClassId===null?'active':'') + '" data-action="filter-class" data-id="">Tümü</div>']
     .concat(state.classes.map(c => `<div class="chip ${ui.filterClassId===c.id?'active':''}" data-action="filter-class" data-id="${c.id}">${esc(c.name)}</div>`)).join('');
 
-  let list = state.assignments.slice();
-  if(ui.filterClassId){
-    list = list.filter(a => a.classId === ui.filterClassId);
-  } else {
-    // ana sayfa: tamamlanmis olanlari gizle (filtre yoksa)
-    list = list.filter(a => !isAssignmentFullyDone(a) || a.id === ui.completingId || a.id === ui.openCardId);
-  }
-  list.sort((a,b) => {
+  const sortFn = (a,b) => {
     const dateCmp = b.verilis.localeCompare(a.verilis);
     if(dateCmp !== 0) return dateCmp;
     return (b.no||0) - (a.no||0);
-  });
+  };
 
   let listHtml;
-  if(list.length===0){
-    listHtml = `<div class="empty-state">${ICONS.empty}<div class="t">Henüz ödev yok</div><div class="s">Sağ alttaki + ile yeni ödev ekleyebilirsin.</div></div>`;
+  let infoHtml = '';
+
+  if(ui.filterClassId){
+    const all = state.assignments.filter(a => a.classId === ui.filterClassId);
+    const groupOf = a => {
+      if(a.id === ui.completingId) return 'active';
+      if(a.id === ui.openCardId && ui.openCardGroup) return ui.openCardGroup;
+      return isAssignmentFullyDone(a) ? 'completed' : 'active';
+    };
+    const active = all.filter(a => groupOf(a) === 'active').sort(sortFn);
+    const completed = all.filter(a => groupOf(a) === 'completed').sort(sortFn);
+
+    if(all.length === 0){
+      listHtml = `<div class="empty-state">${ICONS.empty}<div class="t">Henüz ödev yok</div><div class="s">Sağ alttaki + ile yeni ödev ekleyebilirsin.</div></div>`;
+    } else {
+      const infoParts = [];
+      infoParts.push(active.length > 0 ? `${active.length} aktif ödev` : 'Aktif ödev yok');
+      if(completed.length > 0) infoParts.push(`${completed.length} tamamlanmış`);
+      infoHtml = `<div class="list-info">${infoParts.join(' · ')}</div>`;
+
+      let html = '';
+      if(active.length > 0){
+        html += '<div class="list">' + active.map(renderAssignmentCard).join('') + '</div>';
+      }
+      if(completed.length > 0){
+        html += `
+          <div class="completed-toggle ${ui.showCompleted?'open':''}" data-action="toggle-completed">
+            <span>Tamamlananlar (${completed.length})</span>
+            <span class="chev">${ICONS.chevronDown}</span>
+          </div>`;
+        if(ui.showCompleted){
+          html += '<div class="list">' + completed.map(renderAssignmentCard).join('') + '</div>';
+        }
+      }
+      listHtml = html;
+    }
   } else {
-    listHtml = '<div class="list">' + list.map(renderAssignmentCard).join('') + '</div>';
+    // ana sayfa: tamamlanmis olanlari gizle (filtre yoksa)
+    const list = state.assignments
+      .filter(a => !isAssignmentFullyDone(a) || a.id === ui.completingId || a.id === ui.openCardId)
+      .sort(sortFn);
+    if(list.length===0){
+      listHtml = `<div class="empty-state">${ICONS.empty}<div class="t">Henüz ödev yok</div><div class="s">Sağ alttaki + ile yeni ödev ekleyebilirsin.</div></div>`;
+    } else {
+      listHtml = '<div class="list">' + list.map(renderAssignmentCard).join('') + '</div>';
+    }
   }
 
   return `
@@ -423,6 +468,7 @@ function renderHome(){
       </div>
     </header>
     <div class="filters">${chips}</div>
+    ${infoHtml}
     ${listHtml}
     <div class="fab" data-action="new-assignment" title="Yeni ödev ver">${ICONS.plus}</div>
   `;
@@ -543,14 +589,20 @@ function renderStudents(){
   if(!cls){ ui.view='classes'; return renderClasses(); }
   const studs = studentsOfClass(cls.id);
 
-  const rows = studs.map(s => `
+  const rows = studs.map(s => {
+    const odevSayisi = state.assignments.filter(a => (a.studentIds||[]).includes(s.id)).length;
+    return `
     <div class="row-card" data-action="open-student-history" data-id="${s.id}">
       <div class="avatar round">${esc(initials(s.name))}</div>
-      <div class="row-main"><div class="row-title">${esc(s.name)}</div></div>
+      <div class="row-main">
+        <div class="row-title">${esc(s.name)}</div>
+        <div class="row-sub">${odevSayisi} ödev</div>
+      </div>
       <div class="row-actions">
         <div class="icon-btn edit" data-action="edit-student" data-id="${s.id}" title="Düzenle">${ICONS.edit}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   const listHtml = studs.length===0
     ? `<div class="empty-state">${ICONS.peopleTab}<div class="t">Bu sınıfta öğrenci yok</div><div class="s">Sağ alttaki + ile öğrenci ekleyebilirsin.</div></div>`
@@ -574,7 +626,7 @@ function renderStudentHistory(){
   const s = state.students.find(x=>x.id===ui.currentStudentId);
   if(!s){ ui.view='classes'; return renderClasses(); }
   const cls = state.classes.find(c=>c.id===s.classId);
-  const related = state.assignments.filter(a => (a.studentIds||[]).includes(s.id)).slice().sort((a,b)=>b.kontrol.localeCompare(a.kontrol));
+  const related = state.assignments.filter(a => (a.studentIds||[]).includes(s.id)).slice().sort((a,b)=>a.kontrol.localeCompare(b.kontrol));
 
   let total=0, done=0, yapmadi=0, other=0, late=0;
   const rows = related.map(a => {
@@ -666,8 +718,10 @@ function sheetAssignment(s){
     ? `<select id="f-classId">${classOptions(a.classId)}</select>`
     : `<div class="field-static">${esc(cls?cls.name+' · '+cls.subject:'—')}</div>`;
   return `
-    <div class="sheet-title">${isNew?'Yeni Ödev':'Ödevi Düzenle'}</div>
-    <div class="sheet-sub">${isNew?'Sınıfı seç ve ödev bilgilerini gir. Ödev numarası otomatik verilir.':'Ödev No: '+(a.no||'-')+' · Hatalı girilen bilgileri düzeltebilirsin.'}</div>
+    <div class="sheet-title-row">
+      <div class="sheet-title">${isNew?'Yeni Ödev':'Ödevi Düzenle'}</div>
+      ${!isNew ? `<div class="no-badge" style="color:var(--blue); background:rgba(0,122,255,0.12)">#${a.no||'?'}</div>` : ''}
+    </div>
     <div class="field">
       <div class="field-label">Sınıf</div>
       ${classField}
@@ -678,7 +732,7 @@ function sheetAssignment(s){
     </div>
     <div class="field">
       <div class="field-label">Kaynak</div>
-      <input id="f-kaynak" type="text" value="${escAttr(a.kaynak)}" placeholder="Örn. Sarıgül Yayınları Fasikül 4">
+      <input id="f-kaynak" type="text" value="${escAttr(a.kaynak)}" placeholder="Örn. Soru Bankası">
     </div>
     <div class="field">
       <div class="field-label">Sayfa Aralığı</div>
@@ -708,7 +762,6 @@ function sheetClass(s){
   if(!c) return '';
   return `
     <div class="sheet-title">${isNew?'Yeni Sınıf':'Sınıfı Düzenle'}</div>
-    <div class="sheet-sub">Sınıf adı ve ders adı yanlış girildiyse buradan düzeltebilirsin.</div>
     <div class="field">
       <div class="field-label">Sınıf Adı</div>
       <input id="f-name" type="text" value="${escAttr(c.name)}" placeholder="Örn. 9-A">
@@ -731,7 +784,6 @@ function sheetStudent(s){
   if(!st) return '';
   return `
     <div class="sheet-title">${isNew?'Yeni Öğrenci':'Öğrenciyi Düzenle'}</div>
-    <div class="sheet-sub">Ad soyad hatalıysa düzelt, gerekirse öğrenciyi başka bir sınıfa taşı.</div>
     <div class="field">
       <div class="field-label">Ad Soyad</div>
       <input id="f-name" type="text" value="${escAttr(st.name)}" placeholder="Örn. Ada Yılmaz">
@@ -778,17 +830,25 @@ function onAction(e){
       ui.tab = tab;
       ui.view = tab==='odevler' ? 'home' : 'classes';
       ui.openCardId = null;
+      ui.openCardGroup = null;
       render();
       break;
     }
     case 'toggle-card': {
       const prevOpenId = ui.openCardId;
+      const prevGroup = ui.openCardGroup;
       const newOpenId = (ui.openCardId === id) ? null : id;
       ui.openCardId = newOpenId;
+      if(newOpenId){
+        const na = state.assignments.find(x=>x.id===newOpenId);
+        ui.openCardGroup = (na && isAssignmentFullyDone(na)) ? 'completed' : 'active';
+      } else {
+        ui.openCardGroup = null;
+      }
 
-      if(prevOpenId && prevOpenId !== newOpenId){
+      if(prevOpenId && prevOpenId !== newOpenId && prevGroup === 'active'){
         const a = state.assignments.find(x=>x.id===prevOpenId);
-        if(a && isAssignmentFullyDone(a) && ui.tab==='odevler' && !ui.filterClassId){
+        if(a && isAssignmentFullyDone(a) && ui.tab==='odevler'){
           ui.completingId = prevOpenId;
           render();
           const cls = state.classes.find(c=>c.id===a.classId);
@@ -797,6 +857,11 @@ function onAction(e){
           break;
         }
       }
+      render();
+      break;
+    }
+    case 'toggle-completed': {
+      ui.showCompleted = !ui.showCompleted;
       render();
       break;
     }
@@ -811,6 +876,9 @@ function onAction(e){
     }
     case 'filter-class': {
       ui.filterClassId = id || null;
+      ui.showCompleted = false;
+      ui.openCardId = null;
+      ui.openCardGroup = null;
       render();
       break;
     }
@@ -934,7 +1002,7 @@ function onAction(e){
         const data = pendingImportData;
         state = { classes: data.classes||[], students: data.students||[], assignments: data.assignments||[], statuses: data.statuses||{} };
         saveState();
-        ui.filterClassId = null; ui.openCardId = null; ui.sheet = null; ui.view='home'; ui.tab='odevler';
+        ui.filterClassId = null; ui.openCardId = null; ui.openCardGroup = null; ui.showCompleted = false; ui.sheet = null; ui.view='home'; ui.tab='odevler';
         pendingImportData = null;
         toast('Yedek başarıyla yüklendi.');
       }
