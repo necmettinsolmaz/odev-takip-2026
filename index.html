@@ -130,6 +130,9 @@ header.top .head-actions{ display:flex; gap:8px; }
 .avatar.round{ border-radius:50%; }
 .row-main{ flex:1; min-width:0; }
 .row-title{ font-size:15.5px; font-weight:600; }
+.row-title-line{ display:flex; align-items:center; gap:7px; margin-bottom:6px; }
+.row-title-line .row-title{ margin:0; }
+.score-badge{ font-size:11px; font-weight:700; padding:2px 8px; border-radius:9px; flex-shrink:0; }
 .row-sub{ font-size:13px; color:var(--label-secondary); margin-top:1px; }
 .row-actions{ display:flex; gap:6px; flex-shrink:0; }
 .icon-btn.danger{ color:var(--red); background:rgba(255,59,48,0.1); }
@@ -310,6 +313,21 @@ function isAssignmentFullyDone(a){
 function isOverdue(a){
   return a.kontrol < todayStr() && !isAssignmentFullyDone(a);
 }
+function computeStudentScore(studentId){
+  const related = state.assignments.filter(a => (a.studentIds||[]).includes(studentId));
+  let sum = 0, count = 0;
+  related.forEach(a => {
+    const st = getStatus(a.id, studentId).status;
+    if(st === '' || st === 'gelmedi') return; // boş veya gelmedi puana dahil edilmez
+    let pts;
+    if(st === 'yapti') pts = isLate(a, studentId) ? 7 : 10;
+    else if(st === 'eksik') pts = 5;
+    else pts = 0; // yapmadi, kitabi_yok
+    sum += pts; count++;
+  });
+  return count === 0 ? null : sum / count;
+}
+
 function isLate(a, sId){
   const st = getStatus(a.id, sId);
   return st.status==='yapti' && st.doneAt && st.doneAt > a.kontrol;
@@ -589,14 +607,32 @@ function renderStudents(){
   if(!cls){ ui.view='classes'; return renderClasses(); }
   const studs = studentsOfClass(cls.id);
 
+  let anyHistory = false;
   const rows = studs.map(s => {
-    const odevSayisi = state.assignments.filter(a => (a.studentIds||[]).includes(s.id)).length;
+    const score = computeStudentScore(s.id);
+    let scoreBadge = '';
+    if(score !== null){
+      const color = score>=8 ? 'var(--green)' : (score>=5 ? 'var(--orange)' : 'var(--red)');
+      const bg = score>=8 ? 'rgba(52,199,89,0.14)' : (score>=5 ? 'rgba(255,149,0,0.14)' : 'rgba(255,59,48,0.12)');
+      scoreBadge = `<span class="score-badge" style="color:${color};background:${bg}">${score.toFixed(1)}</span>`;
+    }
+    const histStatuses = state.assignments
+      .filter(a => (a.studentIds||[]).includes(s.id))
+      .slice().sort((a,b)=>a.kontrol.localeCompare(b.kontrol))
+      .slice(-10)
+      .map(a => getStatus(a.id, s.id).status);
+    if(histStatuses.length > 0) anyHistory = true;
+    const histHtml = histStatuses.length===0 ? '' :
+      `<div class="hist-strip">${histStatuses.map(st => `<div class="hist-bar status-${st===''?'empty':st}"></div>`).join('')}</div>`;
     return `
     <div class="row-card" data-action="open-student-history" data-id="${s.id}">
       <div class="avatar round">${esc(initials(s.name))}</div>
       <div class="row-main">
-        <div class="row-title">${esc(s.name)}</div>
-        <div class="row-sub">${odevSayisi} ödev</div>
+        <div class="row-title-line">
+          <span class="row-title">${esc(s.name)}</span>
+          ${scoreBadge}
+        </div>
+        ${histHtml}
       </div>
       <div class="row-actions">
         <div class="icon-btn edit" data-action="edit-student" data-id="${s.id}" title="Düzenle">${ICONS.edit}</div>
@@ -604,9 +640,18 @@ function renderStudents(){
     </div>`;
   }).join('');
 
+  const legend = !anyHistory ? '' : `
+    <div class="hist-legend">
+      <span><span class="dot" style="background:var(--green)"></span>Yaptı</span>
+      <span><span class="dot" style="background:var(--red)"></span>Yapmadı</span>
+      <span><span class="dot" style="background:var(--orange)"></span>Eksik</span>
+      <span><span class="dot" style="background:var(--purple)"></span>Gelmedi</span>
+      <span><span class="dot" style="background:var(--teal)"></span>Kitabı Yok</span>
+    </div>`;
+
   const listHtml = studs.length===0
     ? `<div class="empty-state">${ICONS.peopleTab}<div class="t">Bu sınıfta öğrenci yok</div><div class="s">Sağ alttaki + ile öğrenci ekleyebilirsin.</div></div>`
-    : `<div class="list"><div class="flat-list">${rows}</div></div>`;
+    : `<div class="list"><div class="flat-list">${rows}</div>${legend}</div>`;
 
   return `
     <header class="top">
