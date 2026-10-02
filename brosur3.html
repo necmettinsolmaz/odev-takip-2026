@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Ödev Defteri — Tanıtım ve Kullanım Kılavuzu</title>
+<style>
+@font-face{ font-family:'Manrope'; src:url('fonts/Manrope-Regular.ttf'); font-weight:400; }
+@font-face{ font-family:'Manrope'; src:url('fonts/Manrope-Medium.ttf'); font-weight:500; }
+@font-face{ font-family:'Manrope'; src:url('fonts/Manrope-SemiBold.ttf'); font-weight:600; }
+@font-face{ font-family:'Manrope'; src:url('fonts/Manrope-Bold.ttf'); font-weight:700; }
+@font-face{ font-family:'Manrope'; src:url('fonts/Manrope-ExtraBold.ttf'); font-weight:800; }
+
+:root{
+  --bg:#F2F2F7; --card:#FFFFFF; --label:#1C1C1E; --label-secondary:#6E6E73;
+  --blue:#007AFF; --green:#34C759; --red:#FF3B30; --orange:#FF9500; --purple:#AF52DE; --teal:#32ADE6;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{ font-family:"Manrope",-apple-system,sans-serif; color:var(--label); }
+
+.page{ width:210mm; min-height:297mm; position:relative; page-break-after:always; }
+.page:last-child{ page-break-after:auto; }
+.pad{ padding:17mm 16mm 14mm 16mm; }
+
+/* ---------- TOP BAND ---------- */
+.topband{ background:var(--blue); padding:14mm 16mm 10mm 16mm; color:#fff; }
+.brand-row{ display:flex; align-items:center; gap:13px; }
+.brand-icon{ width:52px;height:52px;border-radius:15px; background:rgba(255,255,255,0.18); display:flex;align-items:center;justify-content:center; flex-shrink:0; }
+.brand-icon svg{ width:26px;height:26px; color:#fff; }
+.brand-name{ font-size:25px; font-weight:800; letter-spacing:-0.4px; }
+.brand-tag{ font-size:12.5px; color:rgba(255,255,255,0.8); font-weight:500; margin-top:1px; }
+
+/* ---------- INTRO ---------- */
+.intro-row{ display:flex; gap:9mm; align-items:flex-start; margin:12mm 0 10mm 0; }
+.intro-copy{ flex:1; }
+.intro-copy p{ font-size:14px; line-height:1.72; color:var(--label); margin-bottom:4mm; }
+.intro-copy p.muted{ color:var(--label-secondary); }
+
+.mock-card{ width:62mm; background:var(--card); border-radius:16px; padding:13px 15px; box-shadow:0 14px 30px rgba(0,0,0,0.11); border:1px solid rgba(0,0,0,0.04); flex-shrink:0; }
+.mock-tagrow{ display:flex; align-items:center; gap:6px; margin-bottom:9px; }
+.mock-tag{ font-size:10px; font-weight:700; color:var(--blue); background:rgba(0,122,255,0.1); padding:3px 8px; border-radius:7px; }
+.mock-no{ font-size:9px; font-weight:700; color:var(--blue); background:rgba(0,122,255,0.15); width:17px;height:17px;border-radius:9px; display:flex;align-items:center;justify-content:center; }
+.mock-title{ font-size:13.5px; font-weight:700; margin-bottom:9px; line-height:1.3; }
+.mock-row{ display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-top:1px solid rgba(0,0,0,0.06); }
+.mock-row:first-of-type{ border-top:none; }
+.mock-name{ font-size:11.5px; font-weight:600; }
+.mock-pill{ font-size:9.5px; font-weight:700; padding:3px 8px; border-radius:8px; }
+.mock-pill.done{ background:rgba(52,199,89,0.15); color:var(--green); }
+.mock-pill.miss{ background:rgba(255,59,48,0.13); color:var(--red); }
+.mock-pill.part{ background:rgba(255,149,0,0.15); color:var(--orange); }
+
+/* ---------- CALLOUT ---------- */
+.callout{ background:#FFF6E8; border:1px solid #FBE4B8; border-radius:14px; padding:6mm 7mm; margin-bottom:10mm; display:flex; gap:11px; }
+.callout-icon{ width:30px;height:30px;border-radius:9px; background:#FFE4B0; color:#A05A00; display:flex;align-items:center;justify-content:center; flex-shrink:0; }
+.callout-icon svg{ width:16px;height:16px; }
+.callout-title{ font-size:13.5px; font-weight:700; color:#7A4700; margin-bottom:3px; }
+.callout-text{ font-size:12px; color:#8A5A10; line-height:1.6; }
+
+/* ---------- FEATURES GRID ---------- */
+.section-heading{ font-size:17px; font-weight:700; margin-bottom:6mm; letter-spacing:-0.2px; }
+.feature-grid{ display:grid; grid-template-columns:1fr 1fr; gap:4mm; margin-bottom:9mm; }
+.feature-tile{ border-radius:14px; padding:5mm 5.5mm; }
+.feature-icon{ width:34px;height:34px;border-radius:10px; display:flex;align-items:center;justify-content:center; margin-bottom:7px; }
+.feature-icon svg{ width:17px;height:17px; }
+.feature-title{ font-size:13.5px; font-weight:700; margin-bottom:4px; }
+.feature-desc{ font-size:11.3px; color:var(--label-secondary); line-height:1.5; }
+
+.closing-note{ font-size:12px; color:var(--label-secondary); line-height:1.65; border-top:1px solid rgba(0,0,0,0.08); padding-top:6mm; }
+
+/* ---------- PAGE 2 ---------- */
+.guide-step{ display:flex; gap:8mm; align-items:flex-start; margin-bottom:9mm; }
+.guide-num{ width:30px;height:30px;border-radius:50%; background:var(--label); color:#fff; display:flex;align-items:center;justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; margin-top:1mm; }
+.guide-copy{ flex:1; }
+.guide-title{ font-size:15.5px; font-weight:700; margin-bottom:4px; }
+.guide-desc{ font-size:12.3px; color:var(--label-secondary); line-height:1.6; max-width:108mm; }
+.guide-visual{ flex-shrink:0; width:50mm; margin-top:2mm; }
+
+.mv-sheet{ background:var(--card); border-radius:12px; padding:11px 13px; box-shadow:0 8px 18px rgba(0,0,0,0.08); border:1px solid rgba(0,0,0,0.04); }
+.mv-field{ background:var(--bg); border-radius:8px; padding:7px 9px; font-size:10px; font-weight:500; margin-bottom:6px; color:var(--label); }
+.mv-field:last-child{ margin-bottom:0; }
+.mv-btn{ background:var(--blue); color:#fff; text-align:center; border-radius:8px; padding:7px; font-size:10px; font-weight:700; margin-top:7px; }
+.mv-bubble-wrap{ display:flex; justify-content:flex-end; }
+.mv-bubble{ background:#DCF8C6; border-radius:11px 11px 2px 11px; padding:10px 12px; font-size:9.5px; line-height:1.55; color:#1b1b1b; box-shadow:0 4px 10px rgba(0,0,0,0.06); }
+.mv-bubble b{ font-weight:700; }
+.mv-status-row{ display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-top:1px solid rgba(0,0,0,0.06); }
+.mv-status-row:first-child{ border-top:none; }
+.mv-name{ font-size:10.5px; font-weight:600; }
+.mv-score-row{ display:flex; align-items:center; gap:6px; margin-bottom:7px; }
+.mv-score-name{ font-size:11px; font-weight:600; flex:1; }
+.mv-score-badge{ font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:8px; }
+.mv-bars{ display:flex; gap:2px; margin-bottom:9px; }
+.mv-bar{ width:11px; height:6px; border-radius:2px; }
+
+.footnote{ font-size:11px; color:var(--label-secondary); text-align:center; margin-top:4mm; }
+
+/* ---------- SCORE TABLE ---------- */
+.score-box{ background:var(--bg); border-radius:14px; padding:6mm 7mm; margin-top:2mm; }
+.score-box-title{ font-size:12.5px; font-weight:700; margin-bottom:4mm; }
+.score-row{ display:flex; align-items:center; gap:8px; padding:5px 0; font-size:11.5px; }
+.score-pill{ width:28px; text-align:center; font-weight:800; font-size:12px; border-radius:7px; padding:2px 0; flex-shrink:0; }
+.score-label{ color:var(--label-secondary); }
+
+/* ---------- CTA ---------- */
+.cta-box{ background:var(--label); color:#fff; border-radius:18px; padding:9mm; display:flex; align-items:center; justify-content:space-between; gap:8mm; margin-top:6mm; }
+.cta-text h3{ font-size:19px; font-weight:800; margin-bottom:6px; }
+.cta-text p{ font-size:11.5px; color:rgba(255,255,255,0.72); line-height:1.55; max-width:95mm; }
+.cta-link{ font-size:11.5px; font-weight:700; color:#8FC4FF; margin-top:8px; word-break:break-all; }
+.cta-qr{ background:#fff; padding:8px; border-radius:12px; flex-shrink:0; }
+.cta-qr img{ width:30mm; height:30mm; display:block; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: TANITIM -->
+<div class="page">
+  <div class="topband">
+    <div class="brand-row">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H19v-3"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">Ödev Defteri</div>
+        <div class="brand-tag">Öğretmenler için hazırlanmış bir ödev takip uygulaması</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pad" style="padding-top:10mm;">
+    <div class="intro-row">
+      <div class="intro-copy">
+        <p>Ödev Defteri, sınıfta ödev vermekten kontrol etmeye, sonuçları velilerle paylaşmaya kadar bütün süreci tek bir yerde toplar. Ayrı bir deftere not almana ya da hangi öğrencinin ne durumda olduğunu aklında tutmaya çalışmana gerek kalmaz.</p>
+        <p class="muted">Hesap oluşturmana ya da bir şey indirmene gerek yok. Tarayıcından açtığın anda kullanmaya başlarsın, girdiğin bilgiler de yalnızca senin telefonunda saklanır.</p>
+      </div>
+      <div class="mock-card">
+        <div class="mock-tagrow">
+          <span class="mock-tag">9-A · Matematik</span>
+          <span class="mock-no">3</span>
+        </div>
+        <div class="mock-title">Fonksiyonlarda Bileşke İşlemi</div>
+        <div class="mock-row"><span class="mock-name">Ada Yılmaz</span><span class="mock-pill done">Yaptı</span></div>
+        <div class="mock-row"><span class="mock-name">Berk Demir</span><span class="mock-pill miss">Yapmadı</span></div>
+        <div class="mock-row"><span class="mock-name">Ceren Kaya</span><span class="mock-pill part">Eksik</span></div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9L2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+      </div>
+      <div>
+        <div class="callout-title">İlk açılışta: örnek verileri sil</div>
+        <div class="callout-text">Uygulama nasıl çalıştığını görebilmen için birkaç örnek sınıf, öğrenci ve ödevle gelir. Gerçek verilerini girmeden önce Sınıflar sekmesinden bu örnek sınıfları (9-A, 9-B, 10-A) düzenleyip silmen yeterli — bir sınıfı sildiğinde içindeki öğrenciler ve ödevler de otomatik olarak silinir.</div>
+      </div>
+    </div>
+
+    <div class="section-heading">Uygulama ne işine yarar?</div>
+    <div class="feature-grid">
+      <div class="feature-tile" style="background:rgba(0,122,255,0.07);">
+        <div class="feature-icon" style="background:rgba(0,122,255,0.14); color:var(--blue);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+        <div class="feature-title">Hızlı ödev girişi</div>
+        <div class="feature-desc">Konuyu, kaynağı ve sayfa aralığını yazman yeterli. Veriliş ve kontrol tarihleri kendiliğinden ayarlanır, istersen değiştirirsin.</div>
+      </div>
+      <div class="feature-tile" style="background:rgba(52,199,89,0.08);">
+        <div class="feature-icon" style="background:rgba(52,199,89,0.16); color:var(--green);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="feature-title">Tek dokunuşla kontrol</div>
+        <div class="feature-desc">Her öğrencinin durumuna dokunarak Yaptı, Yapmadı, Eksik, Gelmedi ve Kitabı Yok arasında sırayla geçersin.</div>
+      </div>
+      <div class="feature-tile" style="background:rgba(175,82,222,0.07);">
+        <div class="feature-icon" style="background:rgba(175,82,222,0.15); color:var(--purple);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>
+        </div>
+        <div class="feature-title">WhatsApp'ta paylaşım</div>
+        <div class="feature-desc">Ödev duyurusunu öğrenci grubuna, sonuçları da veli grubuna hazır bir metinle paylaşırsın.</div>
+      </div>
+      <div class="feature-tile" style="background:rgba(255,149,0,0.08);">
+        <div class="feature-icon" style="background:rgba(255,149,0,0.16); color:var(--orange);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/></svg>
+        </div>
+        <div class="feature-title">Performans puanı</div>
+        <div class="feature-desc">Her öğrencinin yanında 10 üzerinden bir puan ve küçük bir geçmiş şeridi görürsün; kimin desteğe ihtiyacı olduğunu hemen anlarsın.</div>
+      </div>
+      <div class="feature-tile" style="background:rgba(50,173,230,0.08);">
+        <div class="feature-icon" style="background:rgba(50,173,230,0.16); color:var(--teal);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        </div>
+        <div class="feature-title">Dağınıklığa yer yok</div>
+        <div class="feature-desc">Tamamlanan ödevler ana listeden kendiliğinden çıkar, istersen "Tamamlananlar" bölümünden tekrar bakarsın.</div>
+      </div>
+      <div class="feature-tile" style="background:rgba(255,59,48,0.06);">
+        <div class="feature-icon" style="background:rgba(255,59,48,0.13); color:var(--red);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>
+        </div>
+        <div class="feature-title">Yedekle, taşı</div>
+        <div class="feature-desc">Tüm verini tek dokunuşla bir dosyaya kaydedip istediğin zaman başka bir cihaza aktarabilirsin.</div>
+      </div>
+    </div>
+
+    <div class="closing-note">Uygulama tamamen ücretsizdir ve herhangi bir hesap ya da şifre gerektirmez. Verilerin yalnızca kendi telefonunda tutulur. Kullanımıyla ilgili adım adım bir anlatımı bir sonraki sayfada bulabilirsin.</div>
+  </div>
+</div>
+
+<!-- PAGE 2: KULLANIM KILAVUZU -->
+<div class="page">
+  <div class="topband">
+    <div class="brand-row">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H19v-3"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">Kullanım Kılavuzu</div>
+        <div class="brand-tag">Altı adımda Ödev Defteri'ni kullanmaya başla</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pad" style="padding-top:11mm;">
+
+  <div class="guide-step">
+    <div class="guide-num">1</div>
+    <div class="guide-copy">
+      <div class="guide-title">Sınıflarını ve öğrencilerini ekle</div>
+      <div class="guide-desc">Sınıflar sekmesinden artı butonuna dokun. Sınıf adıyla birlikte ders adını da girersin; böylece aynı sınıfa farklı dersler için ayrı kayıtlar tutabilirsin. Sonra üzerine dokunup öğrencilerini tek tek eklersin.</div>
+    </div>
+    <div class="guide-visual">
+      <div class="mv-sheet">
+        <div class="mv-field">Sınıf Adı — 9-A</div>
+        <div class="mv-field">Ders Adı — Matematik</div>
+        <div class="mv-btn">Kaydet</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-step">
+    <div class="guide-num">2</div>
+    <div class="guide-copy">
+      <div class="guide-title">Ödev ver</div>
+      <div class="guide-desc">Ödevler sekmesindeki artı butonuna dokun. Sınıfı seçip konuyu, kaynağı ve sayfa aralığını yazman yeterli; yanlış girersen ödevi sonradan düzenleyebilirsin.</div>
+    </div>
+    <div class="guide-visual">
+      <div class="mv-sheet">
+        <div class="mv-field">Konu — Bileşke İşlemi</div>
+        <div class="mv-field">Kaynak — Soru Bankası</div>
+        <div class="mv-field">Sayfa — 42–47</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-step">
+    <div class="guide-num">3</div>
+    <div class="guide-copy">
+      <div class="guide-title">Duyuruyu ve sonuçları paylaş</div>
+      <div class="guide-desc">Ödev kartındaki paylaş simgesine dokunduğunda, uygulama ödevle ilgili bilgileri düzenli bir metin olarak hazırlar. Ödevi verirken öğrenci grubuna, kontrol ettikten sonra da aynı simgeyle sonuçları veli grubuna gönderirsin.</div>
+    </div>
+    <div class="guide-visual">
+      <div class="mv-bubble-wrap">
+        <div class="mv-bubble">📚 <b>ÖDEV BİLDİRİMİ</b><br><b>9-A Matematik Ödevi #3</b><br><br><b>Konu:</b> Bileşke İşlemi<br><b>Kontrol:</b> 10 Eylül</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-step">
+    <div class="guide-num">4</div>
+    <div class="guide-copy">
+      <div class="guide-title">Kontrol gününde tek tek işaretle</div>
+      <div class="guide-desc">Ödev kartına dokunarak aç; sınıfındaki öğrenciler karşına çıkar. Her öğrencinin durumuna dokunarak sırayla geçersin; değişiklik o anda kaydedilir, ayrıca bir kaydet butonuna basmana gerek yok.</div>
+    </div>
+    <div class="guide-visual">
+      <div class="mv-sheet">
+        <div class="mv-status-row"><span class="mv-name">Ada Yılmaz</span><span class="mock-pill done">Yaptı</span></div>
+        <div class="mv-status-row"><span class="mv-name">Berk Demir</span><span class="mock-pill miss">Yapmadı</span></div>
+        <div class="mv-status-row"><span class="mv-name">Ceren Kaya</span><span class="mock-pill part">Eksik</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-step">
+    <div class="guide-num">5</div>
+    <div class="guide-copy">
+      <div class="guide-title">Öğrenci performansını takip et</div>
+      <div class="guide-desc">Sınıflar sekmesinde bir öğrenci listesini açtığında, her ismin yanında 10 üzerinden bir puan ve altında küçük bir geçmiş şeridi görürsün. Puan; Yaptı, Geç Yaptı, Eksik, Yapmadı ve Kitabı Yok durumlarına göre otomatik hesaplanır, Gelmedi puana katılmaz.</div>
+      <div class="score-box">
+        <div class="score-box-title">Puanlama nasıl hesaplanır?</div>
+        <div class="score-row"><span class="score-pill" style="background:rgba(52,199,89,0.16);color:#2C8A3F;">10</span><span class="score-label">Yaptı</span></div>
+        <div class="score-row"><span class="score-pill" style="background:rgba(52,199,89,0.1);color:#2C8A3F;">7</span><span class="score-label">Geç Yaptı</span></div>
+        <div class="score-row"><span class="score-pill" style="background:rgba(255,149,0,0.16);color:#A05A00;">5</span><span class="score-label">Eksik</span></div>
+        <div class="score-row"><span class="score-pill" style="background:rgba(255,59,48,0.14);color:#B2382D;">0</span><span class="score-label">Yapmadı / Kitabı Yok</span></div>
+      </div>
+    </div>
+    <div class="guide-visual">
+      <div class="mv-sheet">
+        <div class="mv-score-row"><span class="mv-score-name">Ada Yılmaz</span><span class="mv-score-badge" style="background:rgba(52,199,89,0.16);color:#2C8A3F;">9.2</span></div>
+        <div class="mv-bars">
+          <div class="mv-bar" style="background:#34C759"></div><div class="mv-bar" style="background:#34C759"></div><div class="mv-bar" style="background:#34C759"></div><div class="mv-bar" style="background:#34C759"></div><div class="mv-bar" style="background:#34C759"></div><div class="mv-bar" style="background:#34C759"></div>
+        </div>
+        <div class="mv-score-row"><span class="mv-score-name">Berk Demir</span><span class="mv-score-badge" style="background:rgba(255,59,48,0.14);color:#B2382D;">2.1</span></div>
+        <div class="mv-bars">
+          <div class="mv-bar" style="background:#FF3B30"></div><div class="mv-bar" style="background:#FF3B30"></div><div class="mv-bar" style="background:#FF9500"></div><div class="mv-bar" style="background:#FF3B30"></div><div class="mv-bar" style="background:#34C759"></div><div class="mv-bar" style="background:#FF3B30"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-step" style="margin-bottom:0;">
+    <div class="guide-num">6</div>
+    <div class="guide-copy">
+      <div class="guide-title">Verini yedekle</div>
+      <div class="guide-desc">Ana sayfadaki Yedekle seçeneğiyle tüm verini bir dosyaya kaydedebilir, Yükle seçeneğiyle bu dosyayı istediğin zaman başka bir cihaza aktarabilirsin.</div>
+    </div>
+    <div class="guide-visual">
+      <div class="mv-bubble-wrap">
+        <div class="mv-bubble">📋 <b>ÖDEV SONUÇLARI</b><br>✅ <b>Ada Yılmaz</b> — Yaptı<br>❌ <b>Berk Demir</b> — Yapmadı</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-box">
+    <div class="cta-text">
+      <h3>Hemen dene</h3>
+      <p>Telefonunun tarayıcısından aç, "Ana Ekrana Ekle" seçeneğiyle uygulama gibi kullan.</p>
+      <div class="cta-link">necmettinsolmaz.github.io/odev-takip-2026</div>
+    </div>
+    <div class="cta-qr"><img src="qr.png"></div>
+  </div>
+  <div class="footnote">Ödev Defteri — sınıf içi ödev takibi için basit bir araç</div>
+
+  </div>
+</div>
+
+</body>
+</html>
