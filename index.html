@@ -140,6 +140,36 @@ header.top .head-actions{ display:flex; gap:8px; }
 
 /* Bottom sheet */
 .sheet-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:flex-end; z-index:50; }
+.help-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; z-index:60; padding:20px; }
+.help-card{ background:var(--card); border-radius:22px; width:100%; max-width:380px; max-height:88vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.32); }
+.help-top{ display:flex; justify-content:space-between; align-items:center; padding:16px 18px 10px 18px; }
+.help-step-label{ font-size:13px; font-weight:600; color:var(--label-secondary); }
+.help-close{ font-size:13px; font-weight:600; color:var(--blue); cursor:pointer; }
+.help-progress{ display:flex; gap:5px; padding:0 18px 16px 18px; }
+.help-progress-seg{ flex:1; height:4px; border-radius:2px; background:var(--gray-fill); }
+.help-progress-seg.active{ background:var(--blue); }
+.help-body{ padding:0 20px 20px 20px; }
+.help-title{ font-size:18px; font-weight:700; margin-bottom:8px; }
+.help-desc{ font-size:13px; color:var(--label-secondary); line-height:1.6; margin-bottom:16px; }
+.help-visual{ background:var(--bg); border-radius:14px; padding:13px 15px; }
+.help-nav{ display:flex; gap:10px; padding:0 20px 20px 20px; }
+.help-btn-back{ flex:1; text-align:center; padding:12px; border-radius:12px; background:var(--bg); color:var(--label-secondary); font-weight:600; font-size:14px; cursor:pointer; }
+.help-btn-next{ flex:1; text-align:center; padding:12px; border-radius:12px; background:var(--blue); color:#fff; font-weight:600; font-size:14px; cursor:pointer; }
+
+.missing-banner{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin:0 20px 14px 20px; padding:11px 14px; background:rgba(0,122,255,0.08); border-radius:12px; font-size:12.5px; color:var(--blue); font-weight:500; }
+.missing-banner-btn{ font-weight:700; white-space:nowrap; cursor:pointer; }
+.missing-banner.muted{ background:var(--gray-fill); color:var(--label-secondary); }
+
+.include-past-list{ max-height:320px; overflow-y:auto; margin-bottom:14px; }
+.include-past-row{ display:flex; align-items:center; gap:10px; padding:11px 2px; border-top:1px solid var(--separator); }
+.include-past-row:first-child{ border-top:none; }
+.include-past-info{ flex:1; min-width:0; }
+.include-past-choices{ display:flex; gap:6px; flex-shrink:0; }
+.choice-pill{ font-size:12px; font-weight:600; padding:6px 11px; border-radius:10px; background:var(--gray-fill); color:var(--label-secondary); cursor:pointer; user-select:none; }
+.choice-pill.on-ekle{ background:var(--blue); color:#fff; }
+.choice-pill.on-muaf{ background:rgba(255,149,0,0.16); color:var(--orange); }
+.include-past-konu{ font-size:13.5px; font-weight:600; }
+.include-past-date{ font-size:12px; color:var(--label-secondary); margin-top:2px; }
 .sheet-backdrop .sheet-wrap{ max-width:480px; margin:0 auto; width:100%; }
 .sheet{ background:var(--card); width:100%; border-radius:22px 22px 0 0; padding:10px 20px max(28px, env(safe-area-inset-bottom)) 20px; max-height:88vh; overflow-y:auto; }
 .sheet-handle{ width:36px;height:5px;border-radius:3px; background:var(--gray-fill); margin:6px auto 16px auto; }
@@ -257,6 +287,10 @@ let state = loadState();
       changed = true;
     }
   });
+  // Eski "Yaptı tarihi" hafızasını temizle (yalnızca aynı gün geçerli)
+  state.doneMemory = state.doneMemory || {};
+  const t = todayStr();
+  Object.keys(state.doneMemory).forEach(k => { if(state.doneMemory[k].leftOn !== t){ delete state.doneMemory[k]; changed = true; } });
   if(changed) saveState();
 })();
 
@@ -273,7 +307,10 @@ let ui = {
   sheet: null, // {type:'assignment'|'class'|'student', mode:'new'|'edit', id}
   confirmSheet: null, // {title, message, actionType, id}
   lastSavedKey: null,
-  completingId: null
+  completingId: null,
+  helpStep: null, // 0-5 when the interactive guide is open, else null
+  helpDemoStatus: '',
+  includePastSel: null
 };
 
 /* ============ STATUS HELPERS ============ */
@@ -287,9 +324,20 @@ function nextAssignmentNo(classId){
 function getStatus(aId, sId){ return state.statuses[statusKey(aId,sId)] || {status:'', doneAt:null}; }
 function setStatus(aId, sId, status){
   const key = statusKey(aId,sId);
+  const prev = state.statuses[key];
+  state.doneMemory = state.doneMemory || {};
+  // Yaptı durumundan ayrılırken asıl tarihi hatırla: aynı gün içinde geri dönülürse (yanlışlıkla dokunma) tarih korunur
+  if(prev && prev.status === 'yapti' && status !== 'yapti' && prev.doneAt){
+    state.doneMemory[key] = { date: prev.doneAt, leftOn: todayStr() };
+  }
   if(status === ''){ delete state.statuses[key]; }
   else{
-    const doneAt = status === 'yapti' ? todayStr() : null;
+    let doneAt = null;
+    if(status === 'yapti'){
+      const mem = state.doneMemory[key];
+      doneAt = (mem && mem.leftOn === todayStr()) ? mem.date : todayStr();
+      delete state.doneMemory[key];
+    }
     state.statuses[key] = { status, doneAt };
   }
   saveState();
@@ -329,6 +377,7 @@ function computeStudentScore(studentId){
 }
 
 function isLate(a, sId){
+  if(a.retro || (a.retroStudentIds||[]).includes(sId)) return false; // geçmişe dönük girilen ödevlerde veya sonradan dahil edilen öğrencilerde geç hesaplaması yapılmaz
   const st = getStatus(a.id, sId);
   return st.status==='yapti' && st.doneAt && st.doneAt > a.kontrol;
 }
@@ -374,6 +423,7 @@ const ICONS = {
   gridTab: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>',
   peopleTab: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 20v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
   download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>',
+  help: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.4"/><path d="M12 17h.01"/></svg>',
   upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V8"/><path d="M7 13l5-5 5 5"/><path d="M5 3h14"/></svg>',
   empty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v13"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H19v-3"/></svg>',
 };
@@ -397,6 +447,7 @@ function render(){
   html += renderTabBar();
   if(ui.sheet) html += renderSheet();
   if(ui.confirmSheet) html += renderConfirmSheet();
+  if(ui.helpStep !== null) html += renderHelp();
 
   app.innerHTML = html;
   attachEvents();
@@ -481,6 +532,7 @@ function renderHome(){
       </div>
       <div class="spacer"></div>
       <div class="head-actions">
+        <div class="icon-round" data-action="open-help" title="Yardım">${ICONS.help}</div>
         <div class="icon-round" data-action="backup" title="Yedekle">${ICONS.upload}</div>
         <div class="icon-round" data-action="restore" title="Yükle">${ICONS.download}</div>
       </div>
@@ -701,6 +753,24 @@ function renderStudentHistory(){
     ? `<div class="empty-state">${ICONS.empty}<div class="t">Kayıt yok</div><div class="s">Bu öğrenciye ait ödev bulunmuyor.</div></div>`
     : `<div class="list"><div class="history-list">${rows}</div></div>`;
 
+  const gaps = state.assignments.filter(a => a.classId === s.classId && !(a.studentIds||[]).includes(s.id));
+  const pendingGaps = gaps.filter(a => !(a.exemptStudentIds||[]).includes(s.id));
+  const exemptCount = gaps.length - pendingGaps.length;
+  let missingBanner = '';
+  if(pendingGaps.length > 0){
+    missingBanner = `
+    <div class="missing-banner">
+      <span>Bu öğrencinin dahil olmadığı ${pendingGaps.length} geçmiş ödev var.</span>
+      <span class="missing-banner-btn" data-action="open-include-past" data-id="${s.id}">Düzenle</span>
+    </div>`;
+  } else if(exemptCount > 0){
+    missingBanner = `
+    <div class="missing-banner muted">
+      <span>Bu öğrenci ${exemptCount} ödevden muaf.</span>
+      <span class="missing-banner-btn" data-action="open-include-past" data-id="${s.id}">Düzenle</span>
+    </div>`;
+  }
+
   return `
     <header class="top">
       <div class="back" data-action="back-to-students" data-id="${s.classId}">${ICONS.chevronLeft}</div>
@@ -714,6 +784,7 @@ function renderStudentHistory(){
         <div class="icon-round" data-action="share-student-history" data-id="${s.id}" title="Paylaş">${ICONS.share}</div>
       </div>
     </header>
+    ${missingBanner}
     <div class="stats-row">
       <div class="stat-chip"><div class="stat-num">${total}</div><div class="stat-label">Toplam</div></div>
       <div class="stat-chip"><div class="stat-num" style="color:var(--green)">${done}</div><div class="stat-label">Yaptı${late>0?' ('+late+' geç)':''}</div></div>
@@ -731,6 +802,7 @@ function renderSheet(){
   if(s.type === 'assignment') inner = sheetAssignment(s);
   else if(s.type === 'class') inner = sheetClass(s);
   else if(s.type === 'student') inner = sheetStudent(s);
+  else if(s.type === 'includePast') inner = sheetIncludePast(s);
 
   return `<div class="sheet-backdrop" data-action="close-sheet"><div class="sheet-wrap"><div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-handle"></div>
@@ -747,6 +819,118 @@ function renderConfirmSheet(){
     <div class="btn-danger-solid" data-action="confirm-yes">${esc(c.confirmLabel||'Sil')}</div>
     <div class="btn-secondary-outline" data-action="cancel-confirm">Vazgeç</div>
   </div></div></div>`;
+}
+
+const HELP_STEPS = [
+  {
+    title: 'Sınıflarını ve öğrencilerini ekle',
+    desc: 'Sınıflar sekmesinden artı butonuna dokun. Sınıf adıyla birlikte ders adını da girersin; böylece aynı sınıfa farklı dersler için ayrı kayıtlar tutabilirsin. Sonra üzerine dokunup öğrencilerini tek tek eklersin.',
+    visual: () => `
+      <div class="field-static" style="margin-bottom:8px;">Sınıf Adı — 9-A</div>
+      <div class="field-static" style="margin-bottom:8px;">Ders Adı — Matematik</div>
+      <div class="btn-primary" style="margin-top:0;">Kaydet</div>
+    `
+  },
+  {
+    title: 'Ödev ver',
+    desc: 'Ödevler sekmesindeki artı butonuna dokun. Sınıfı seçip konuyu, kaynağı ve sayfa aralığını yazman yeterli; yanlış girersen ödevi sonradan düzenleyebilirsin.',
+    visual: () => `
+      <div class="field-static" style="margin-bottom:8px;">Konu — Bileşke İşlemi</div>
+      <div class="field-static" style="margin-bottom:8px;">Kaynak — Soru Bankası</div>
+      <div class="field-static">Sayfa — 42–47</div>
+    `
+  },
+  {
+    title: 'Duyuruyu ve sonuçları paylaş',
+    desc: 'Ödev kartındaki paylaş simgesine dokunduğunda, uygulama ödevle ilgili bilgileri düzenli bir metin olarak hazırlar. Ödevi verirken öğrenci grubuna, kontrol ettikten sonra da aynı simgeyle sonuçları veli grubuna gönderirsin.',
+    visual: () => `
+      <div style="display:flex; justify-content:flex-end;">
+        <div style="background:#DCF8C6; border-radius:12px 12px 2px 12px; padding:10px 13px; font-size:12.5px; line-height:1.6; color:#1b1b1b; max-width:88%;">
+          📚 <b>ÖDEV BİLDİRİMİ</b><br><b>9-A Matematik Ödevi #3</b><br><br><b>Konu:</b> Bileşke İşlemi<br><b>Kontrol:</b> 10 Eylül
+        </div>
+      </div>
+    `
+  },
+  {
+    title: 'Kontrol gününde tek tek işaretle',
+    desc: 'Aşağıdaki kartı dene — isme dokunarak durumun nasıl değiştiğini gör.',
+    visual: () => `
+      <div class="student-row" style="border-top:none; padding-top:0;">
+        <div class="student-row-top">
+          <span class="student-name">Ada Yılmaz</span>
+          <span class="status-pill status-yapti">${ICONS.check}Yaptı</span>
+        </div>
+      </div>
+      <div class="student-row">
+        <div class="student-row-top">
+          <span class="student-name">Berk Demir</span>
+          <span class="status-pill status-${ui.helpDemoStatus===''?'empty':ui.helpDemoStatus}" data-action="help-cycle-demo">
+            ${statusIcon(ui.helpDemoStatus)}${STATUS_LABEL[ui.helpDemoStatus]}
+          </span>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: 'Öğrenci performansını takip et',
+    desc: 'Sınıflar sekmesinde bir öğrenci listesini açtığında, her ismin yanında 10 üzerinden bir puan ve altında küçük bir geçmiş şeridi görürsün. Puan; Yaptı, Geç Yaptı, Eksik, Yapmadı ve Kitabı Yok durumlarına göre otomatik hesaplanır, Gelmedi puana katılmaz.',
+    visual: () => `
+      <div class="row-title-line">
+        <span class="row-title">Ada Yılmaz</span>
+        <span class="score-badge" style="color:var(--green); background:rgba(52,199,89,0.14)">9.2</span>
+      </div>
+      <div class="hist-strip" style="margin-bottom:12px;">
+        <div class="hist-bar status-yapti"></div><div class="hist-bar status-yapti"></div><div class="hist-bar status-yapti"></div><div class="hist-bar status-eksik"></div><div class="hist-bar status-yapti"></div><div class="hist-bar status-yapti"></div>
+      </div>
+      <div class="row-title-line">
+        <span class="row-title">Berk Demir</span>
+        <span class="score-badge" style="color:var(--red); background:rgba(255,59,48,0.12)">2.1</span>
+      </div>
+      <div class="hist-strip">
+        <div class="hist-bar status-yapmadi"></div><div class="hist-bar status-yapmadi"></div><div class="hist-bar status-eksik"></div><div class="hist-bar status-yapmadi"></div><div class="hist-bar status-yapti"></div><div class="hist-bar status-yapmadi"></div>
+      </div>
+    `
+  },
+  {
+    title: 'Verini yedekle',
+    desc: 'Ana sayfadaki Yedekle seçeneğiyle tüm verini bir dosyaya kaydedebilir, Yükle seçeneğiyle bu dosyayı istediğin zaman başka bir cihaza aktarabilirsin.',
+    visual: () => `
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1; text-align:center; padding:12px; border-radius:12px; background:var(--card); display:flex; flex-direction:column; align-items:center; gap:6px;">
+          <span style="color:var(--blue); display:flex;">${ICONS.upload}</span>
+          <span style="font-size:12px; font-weight:600;">Yedekle</span>
+        </div>
+        <div style="flex:1; text-align:center; padding:12px; border-radius:12px; background:var(--card); display:flex; flex-direction:column; align-items:center; gap:6px;">
+          <span style="color:var(--blue); display:flex;">${ICONS.download}</span>
+          <span style="font-size:12px; font-weight:600;">Yükle</span>
+        </div>
+      </div>
+    `
+  },
+];
+
+function renderHelp(){
+  const i = Math.max(0, Math.min(ui.helpStep, HELP_STEPS.length - 1));
+  const s = HELP_STEPS[i];
+  const isLast = i === HELP_STEPS.length - 1;
+  const progress = HELP_STEPS.map((_, idx) => `<div class="help-progress-seg ${idx<=i?'active':''}"></div>`).join('');
+
+  return `<div class="help-backdrop" data-action="close-help"><div class="help-card" onclick="event.stopPropagation()">
+    <div class="help-top">
+      <span class="help-step-label">${i+1} / ${HELP_STEPS.length}</span>
+      <span class="help-close" data-action="close-help">Kapat ✕</span>
+    </div>
+    <div class="help-progress">${progress}</div>
+    <div class="help-body">
+      <div class="help-title">${esc(s.title)}</div>
+      <div class="help-desc">${esc(s.desc)}</div>
+      <div class="help-visual">${s.visual()}</div>
+    </div>
+    <div class="help-nav">
+      ${i>0 ? `<div class="help-btn-back" data-action="help-back">Geri</div>` : ''}
+      <div class="help-btn-next" data-action="${isLast?'close-help':'help-next'}">${isLast?'Bitir':'İleri'}</div>
+    </div>
+  </div></div>`;
 }
 
 function classOptions(selectedId){
@@ -842,6 +1026,33 @@ function sheetStudent(s){
       ${!isNew ? `<div class="btn-danger-small" data-action="delete-student" data-id="${st.id}">Sil</div>` : ''}
       <div class="btn-secondary-outline" data-action="close-sheet">Vazgeç</div>
     </div>
+  `;
+}
+
+function sheetIncludePast(s){
+  const student = state.students.find(x=>x.id===s.id);
+  if(!student) return '';
+  const gaps = state.assignments
+    .filter(a => a.classId===student.classId && !(a.studentIds||[]).includes(student.id))
+    .sort((a,b) => (a.no||0)-(b.no||0));
+  const sel = ui.includePastSel || {};
+  const rows = gaps.map(a => `
+    <div class="include-past-row">
+      <div class="include-past-info">
+        <div class="include-past-konu">#${a.no||'?'} ${esc(a.konu)}</div>
+        <div class="include-past-date">Kontrol: ${fmtTRFull(a.kontrol)}</div>
+      </div>
+      <div class="include-past-choices">
+        <span class="choice-pill ${sel[a.id]==='ekle'?'on-ekle':''}" data-action="set-include-past" data-id="${a.id}" data-choice="ekle">Ekle</span>
+        <span class="choice-pill ${sel[a.id]==='muaf'?'on-muaf':''}" data-action="set-include-past" data-id="${a.id}" data-choice="muaf">Muaf</span>
+      </div>
+    </div>`).join('');
+  return `
+    <div class="sheet-title">Geçmiş Ödevler</div>
+    <div class="sheet-sub" style="margin-bottom:14px;">Eklenen ödevler "Boş" durumda başlar. Muaf tutulan ödevler hesaba katılmaz.</div>
+    <div class="include-past-list">${rows || '<div style="padding:10px 2px; font-size:13px; color:var(--label-secondary)">Listelenecek ödev yok.</div>'}</div>
+    <div class="btn-primary" data-action="confirm-include-past" data-id="${student.id}">Kaydet</div>
+    <div class="btn-secondary-outline" data-action="close-sheet" style="margin-top:8px;">Vazgeç</div>
   `;
 }
 
@@ -1068,6 +1279,85 @@ function onAction(e){
       document.getElementById('importFile').click();
       break;
     }
+    case 'open-help': {
+      ui.helpStep = 0;
+      ui.helpDemoStatus = '';
+      render();
+      break;
+    }
+    case 'close-help': {
+      ui.helpStep = null;
+      render();
+      break;
+    }
+    case 'help-next': {
+      ui.helpStep = Math.min(ui.helpStep + 1, HELP_STEPS.length - 1);
+      render();
+      break;
+    }
+    case 'help-back': {
+      ui.helpStep = Math.max(ui.helpStep - 1, 0);
+      render();
+      break;
+    }
+    case 'help-cycle-demo': {
+      const idx = STATUS_CYCLE.indexOf(ui.helpDemoStatus);
+      ui.helpDemoStatus = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+      render();
+      break;
+    }
+    case 'open-include-past': {
+      const student = state.students.find(x=>x.id===id);
+      const sel = {};
+      if(student){
+        state.assignments.forEach(a => {
+          if(a.classId === student.classId && !(a.studentIds||[]).includes(student.id) && (a.exemptStudentIds||[]).includes(student.id)) sel[a.id] = 'muaf';
+        });
+      }
+      ui.includePastSel = sel;
+      ui.sheet = { type: 'includePast', id };
+      render();
+      break;
+    }
+    case 'set-include-past': {
+      const choice = el.getAttribute('data-choice');
+      if(!ui.includePastSel) ui.includePastSel = {};
+      if(ui.includePastSel[id] === choice) delete ui.includePastSel[id];
+      else ui.includePastSel[id] = choice;
+      render();
+      break;
+    }
+    case 'confirm-include-past': {
+      const student = state.students.find(x=>x.id===id);
+      const sel = ui.includePastSel || {};
+      let eklenen = 0, muafYeni = 0;
+      if(student){
+        state.assignments.forEach(a => {
+          if(a.classId !== student.classId || (a.studentIds||[]).includes(student.id)) return;
+          const choice = sel[a.id];
+          const wasExempt = (a.exemptStudentIds||[]).includes(student.id);
+          if(choice === 'ekle'){
+            a.studentIds = [...(a.studentIds||[]), student.id];
+            a.retroStudentIds = [...(a.retroStudentIds||[]), student.id];
+            a.exemptStudentIds = (a.exemptStudentIds||[]).filter(x => x !== student.id);
+            eklenen++;
+          } else if(choice === 'muaf'){
+            if(!wasExempt){ a.exemptStudentIds = [...(a.exemptStudentIds||[]), student.id]; muafYeni++; }
+          } else if(wasExempt){
+            a.exemptStudentIds = a.exemptStudentIds.filter(x => x !== student.id);
+          }
+        });
+        saveState();
+        const parts = [];
+        if(eklenen) parts.push(`${eklenen} ödeve eklendi`);
+        if(muafYeni) parts.push(`${muafYeni} ödevden muaf tutuldu`);
+        if(parts.length) toast(parts.join(', ') + '.');
+      }
+      ui.includePastSel = null;
+      ui.sheet = null;
+      render();
+      break;
+    }
   }
 }
 
@@ -1089,7 +1379,8 @@ function saveAssignmentFromForm(btn){
   if(mode==='new'){
     const no = nextAssignmentNo(classId);
     const studentIds = studentsOfClass(classId).map(s=>s.id);
-    state.assignments.push({ id: uid(), classId, no, studentIds, konu, kaynak, sayfa, verilis, kontrol });
+    const retro = kontrol < todayStr();
+    state.assignments.push({ id: uid(), classId, no, studentIds, konu, kaynak, sayfa, verilis, kontrol, retro });
   } else if(existing){
     Object.assign(existing, {konu, kaynak, sayfa, verilis, kontrol});
   }
