@@ -47,11 +47,15 @@ header.top .head-actions{ display:flex; gap:8px; }
 /* Assignment card */
 .acard{ background:var(--card); border-radius:18px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.04), 0 8px 20px rgba(0,0,0,0.03); }
 .list-info{ padding:0 20px 10px 20px; font-size:13px; font-weight:500; color:var(--label-secondary); }
-.completed-toggle{ display:flex; justify-content:space-between; align-items:center; margin:8px 16px 0 16px; padding:14px 4px; border-top:1px solid var(--separator); font-size:14px; font-weight:600; color:var(--label-secondary); cursor:pointer; user-select:none; }
-.completed-toggle .chev{ display:flex; transition:transform 0.2s ease; }
-.completed-toggle .chev svg{ width:16px; height:16px; }
-.completed-toggle.open .chev{ transform:rotate(180deg); }
-.completed-toggle + .list{ padding-top:4px; }
+.past-toggle{ display:flex; justify-content:space-between; align-items:center; margin:8px 16px 0 16px; padding:14px 4px; border-top:1px solid var(--separator); font-size:14px; font-weight:600; color:var(--label-secondary); cursor:pointer; user-select:none; }
+.past-toggle .chev{ display:flex; transition:transform 0.2s ease; }
+.past-toggle .chev svg{ width:16px; height:16px; }
+.past-toggle.open .chev{ transform:rotate(180deg); }
+.past-toggle + .list{ padding-top:4px; }
+.past-flag{ margin-left:8px; font-size:11px; font-weight:700; color:var(--red); background:rgba(255,59,48,0.1); padding:2px 8px; border-radius:9px; }
+.chip-dot{ display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--red); margin-left:6px; vertical-align:1px; }
+.acard.past-done{ box-shadow:inset 4px 0 0 var(--green), 0 1px 2px rgba(0,0,0,0.04), 0 8px 20px rgba(0,0,0,0.03); }
+.acard.past-open{ box-shadow:inset 4px 0 0 var(--red), 0 1px 2px rgba(0,0,0,0.04), 0 8px 20px rgba(0,0,0,0.03); }
 .acard.completed-view{ opacity:0.6; }
 @keyframes cardCompleteFade{ 0%{ opacity:1; transform:scale(1); } 100%{ opacity:0; transform:scale(0.95); } }
 .acard.completing{ animation: cardCompleteFade 0.6s ease forwards; pointer-events:none; }
@@ -300,7 +304,7 @@ let ui = {
   currentClassId: null,
   currentStudentId: null,
   filterClassId: null,
-  showCompleted: false,
+  showPast: false,
   openCardGroup: null,
   sortDir: 'asc',
   openCardId: null,
@@ -360,6 +364,15 @@ function isAssignmentFullyDone(a){
 }
 function isOverdue(a){
   return a.kontrol < todayStr() && !isAssignmentFullyDone(a);
+}
+// Kontrol tarihinin üzerinden 14 günden fazla geçmişse ödev "eski" sayılır
+function isOld(a){
+  return !!a.kontrol && a.kontrol < addDaysISO(todayStr(), -14);
+}
+// 'active' = ana listede görünür, 'pastOpen' = geçmiş + tamamlanmamış, 'pastDone' = geçmiş + tamamlanmış
+function assignmentKind(a){
+  if(isAssignmentFullyDone(a)) return 'pastDone';
+  return isOld(a) ? 'pastOpen' : 'active';
 }
 function computeStudentScore(studentId){
   const related = state.assignments.filter(a => (a.studentIds||[]).includes(studentId));
@@ -467,61 +480,69 @@ function renderTabBar(){
 
 /* ---------- HOME (ÖDEVLER) ---------- */
 function renderHome(){
+  const staleDot = cid => state.assignments.some(a => a.classId===cid && assignmentKind(a)==='pastOpen')
+    ? '<span class="chip-dot"></span>' : '';
   const chips = ['<div class="chip ' + (ui.filterClassId===null?'active':'') + '" data-action="filter-class" data-id="">Tümü</div>']
-    .concat(state.classes.map(c => `<div class="chip ${ui.filterClassId===c.id?'active':''}" data-action="filter-class" data-id="${c.id}">${esc(c.name)}</div>`)).join('');
+    .concat(state.classes.map(c => `<div class="chip ${ui.filterClassId===c.id?'active':''}" data-action="filter-class" data-id="${c.id}">${esc(c.name)}${staleDot(c.id)}</div>`)).join('');
 
   const sortFn = (a,b) => {
     const dateCmp = b.verilis.localeCompare(a.verilis);
     if(dateCmp !== 0) return dateCmp;
     return (b.no||0) - (a.no||0);
   };
+  const emptyHtml = `<div class="empty-state">${ICONS.empty}<div class="t">Henüz ödev yok</div><div class="s">Sağ alttaki + ile yeni ödev ekleyebilirsin.</div></div>`;
 
   let listHtml;
   let infoHtml = '';
 
   if(ui.filterClassId){
     const all = state.assignments.filter(a => a.classId === ui.filterClassId);
-    const groupOf = a => {
+    // Açık kart, açıldığı grupta kalır: işaretleme sırasında yer değiştirmesin
+    const kindOf = a => {
       if(a.id === ui.completingId) return 'active';
       if(a.id === ui.openCardId && ui.openCardGroup) return ui.openCardGroup;
-      return isAssignmentFullyDone(a) ? 'completed' : 'active';
+      return assignmentKind(a);
     };
-    const active = all.filter(a => groupOf(a) === 'active').sort(sortFn);
-    const completed = all.filter(a => groupOf(a) === 'completed').sort(sortFn);
+    const active = all.filter(a => kindOf(a) === 'active').sort(sortFn);
+    const pastOpen = all.filter(a => kindOf(a) === 'pastOpen').sort(sortFn);
+    const pastDone = all.filter(a => kindOf(a) === 'pastDone').sort(sortFn);
+    const past = pastOpen.concat(pastDone);
 
     if(all.length === 0){
-      listHtml = `<div class="empty-state">${ICONS.empty}<div class="t">Henüz ödev yok</div><div class="s">Sağ alttaki + ile yeni ödev ekleyebilirsin.</div></div>`;
+      listHtml = emptyHtml;
     } else {
       const infoParts = [];
       infoParts.push(active.length > 0 ? `${active.length} aktif ödev` : 'Aktif ödev yok');
-      if(completed.length > 0) infoParts.push(`${completed.length} tamamlanmış`);
+      if(past.length > 0) infoParts.push(`${past.length} geçmiş` + (pastOpen.length > 0 ? ` (${pastOpen.length} tamamlanmamış)` : ''));
       infoHtml = `<div class="list-info">${infoParts.join(' · ')}</div>`;
 
       let html = '';
       if(active.length > 0){
-        html += '<div class="list">' + active.map(renderAssignmentCard).join('') + '</div>';
+        html += '<div class="list">' + active.map(a => renderAssignmentCard(a)).join('') + '</div>';
       }
-      if(completed.length > 0){
+      if(past.length > 0){
         html += `
-          <div class="completed-toggle ${ui.showCompleted?'open':''}" data-action="toggle-completed">
-            <span>Tamamlananlar (${completed.length})</span>
+          <div class="past-toggle ${ui.showPast?'open':''}" data-action="toggle-past">
+            <span>Geçmiş ödevler (${past.length})${pastOpen.length > 0 ? `<span class="past-flag">${pastOpen.length} tamamlanmamış</span>` : ''}</span>
             <span class="chev">${ICONS.chevronDown}</span>
           </div>`;
-        if(ui.showCompleted){
-          html += '<div class="list">' + completed.map(renderAssignmentCard).join('') + '</div>';
+        if(ui.showPast){
+          html += '<div class="list">' + past.map(a => renderAssignmentCard(a, 'past')).join('') + '</div>';
         }
       }
       listHtml = html;
     }
   } else {
-    // ana sayfa: tamamlanmis olanlari gizle (filtre yoksa)
+    // Tümü: tamamlananlar ve kontrol tarihi 14 günden eski olanlar görünmez
     const list = state.assignments
-      .filter(a => !isAssignmentFullyDone(a) || a.id === ui.completingId || a.id === ui.openCardId)
+      .filter(a => assignmentKind(a) === 'active' || a.id === ui.completingId || a.id === ui.openCardId)
       .sort(sortFn);
     if(list.length===0){
-      listHtml = `<div class="empty-state">${ICONS.empty}<div class="t">Henüz ödev yok</div><div class="s">Sağ alttaki + ile yeni ödev ekleyebilirsin.</div></div>`;
+      listHtml = state.assignments.length === 0
+        ? emptyHtml
+        : `<div class="empty-state">${ICONS.empty}<div class="t">Aktif ödev yok</div><div class="s">Geçmiş ödevlere sınıf filtresinden ulaşılabilir.</div></div>`;
     } else {
-      listHtml = '<div class="list">' + list.map(renderAssignmentCard).join('') + '</div>';
+      listHtml = '<div class="list">' + list.map(a => renderAssignmentCard(a)).join('') + '</div>';
     }
   }
 
@@ -544,7 +565,7 @@ function renderHome(){
   `;
 }
 
-function renderAssignmentCard(a){
+function renderAssignmentCard(a, mode){
   const cls = state.classes.find(c=>c.id===a.classId);
   const color = colorForClass(a.classId);
   const studs = assignedStudents(a);
@@ -552,12 +573,17 @@ function renderAssignmentCard(a){
   const overdue = isOverdue(a);
   const fullyDone = isAssignmentFullyDone(a);
   const isCompleting = ui.completingId === a.id;
+  const inPast = mode === 'past';
+  const notDoneCount = studs.filter(s => getStatus(a.id, s.id).status !== 'yapti').length;
+  const pastClass = inPast ? (fullyDone ? 'past-done' : 'past-open') : '';
 
   const dateItemControl = fullyDone
     ? `<div class="date-item" style="color:var(--green); font-weight:600;">${ICONS.check} Tamamlandı</div>`
-    : (overdue
-      ? `<div class="date-item overdue">${ICONS.warn}Gecikti · ${fmtTR(a.kontrol)}</div>`
-      : `<div class="date-item control">${ICONS.clock}${fmtTR(a.kontrol)}</div>`);
+    : (inPast
+      ? `<div class="date-item overdue">${ICONS.warn}${studs.length===0 ? 'Öğrenci yok' : notDoneCount+' öğrenci tamamlamadı'}</div>`
+      : (overdue
+        ? `<div class="date-item overdue">${ICONS.warn}Gecikti · ${fmtTR(a.kontrol)}</div>`
+        : `<div class="date-item control">${ICONS.clock}${fmtTR(a.kontrol)}</div>`));
 
   const studentsHtml = studs.length===0
     ? `<div style="padding:10px 4px; font-size:13px; color:var(--label-secondary)">Bu sınıfta öğrenci yok.</div>`
@@ -589,7 +615,7 @@ function renderAssignmentCard(a){
     </div>`;
 
   return `
-  <div class="acard ${open?'open':''} ${fullyDone?'completed-view':''} ${isCompleting?'completing':''}">
+  <div class="acard ${open?'open':''} ${fullyDone?'completed-view':''} ${isCompleting?'completing':''} ${pastClass}">
     <div class="acard-head" data-action="toggle-card" data-id="${a.id}">
       <div class="acard-body">
         <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
@@ -1097,7 +1123,7 @@ function onAction(e){
       ui.openCardId = newOpenId;
       if(newOpenId){
         const na = state.assignments.find(x=>x.id===newOpenId);
-        ui.openCardGroup = (na && isAssignmentFullyDone(na)) ? 'completed' : 'active';
+        ui.openCardGroup = na ? assignmentKind(na) : 'active';
       } else {
         ui.openCardGroup = null;
       }
@@ -1116,8 +1142,8 @@ function onAction(e){
       render();
       break;
     }
-    case 'toggle-completed': {
-      ui.showCompleted = !ui.showCompleted;
+    case 'toggle-past': {
+      ui.showPast = !ui.showPast;
       render();
       break;
     }
@@ -1132,7 +1158,7 @@ function onAction(e){
     }
     case 'filter-class': {
       ui.filterClassId = id || null;
-      ui.showCompleted = false;
+      ui.showPast = false;
       ui.openCardId = null;
       ui.openCardGroup = null;
       render();
@@ -1258,7 +1284,7 @@ function onAction(e){
         const data = pendingImportData;
         state = { classes: data.classes||[], students: data.students||[], assignments: data.assignments||[], statuses: data.statuses||{} };
         saveState();
-        ui.filterClassId = null; ui.openCardId = null; ui.openCardGroup = null; ui.showCompleted = false; ui.sheet = null; ui.view='home'; ui.tab='odevler';
+        ui.filterClassId = null; ui.openCardId = null; ui.openCardGroup = null; ui.showPast = false; ui.sheet = null; ui.view='home'; ui.tab='odevler';
         pendingImportData = null;
         toast('Yedek başarıyla yüklendi.');
       }
@@ -1376,16 +1402,31 @@ function saveAssignmentFromForm(btn){
   if(!classId){ toast('Önce bir sınıf oluşturmalısın.'); return; }
   if(!konu){ toast('Konu boş olamaz.'); return; }
 
+  let movedToPast = false;
+  let targetClassId = classId;
   if(mode==='new'){
     const no = nextAssignmentNo(classId);
     const studentIds = studentsOfClass(classId).map(s=>s.id);
     const retro = kontrol < todayStr();
-    state.assignments.push({ id: uid(), classId, no, studentIds, konu, kaynak, sayfa, verilis, kontrol, retro });
+    const created = { id: uid(), classId, no, studentIds, konu, kaynak, sayfa, verilis, kontrol, retro };
+    state.assignments.push(created);
+    movedToPast = isOld(created);
   } else if(existing){
+    const wasOld = isOld(existing);
     Object.assign(existing, {konu, kaynak, sayfa, verilis, kontrol});
+    movedToPast = !wasOld && isOld(existing);
+    targetClassId = existing.classId;
   }
   saveState();
   ui.sheet = null;
+  if(movedToPast){
+    // Kaydedilen ödev Tümü'nden görünmez olacağı için ilgili sınıfın geçmiş bölümünü açıyoruz
+    ui.filterClassId = targetClassId;
+    ui.showPast = true;
+    ui.openCardId = null;
+    ui.openCardGroup = null;
+    toast(mode==='new' ? 'Ödev geçmiş ödevler arasına eklendi.' : 'Ödev geçmiş ödevler arasına taşındı.');
+  }
   render();
 }
 
