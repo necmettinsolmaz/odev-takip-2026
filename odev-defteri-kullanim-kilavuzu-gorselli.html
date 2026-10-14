@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173f6b">
+<title>Ödev Defteri | Tanıtım ve Kullanım Kılavuzu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1c1c1e;--blue:#007aff;--ink:#1c1c1e;--muted:#8e8e93;--bg:#f2f2f7;--card:#fff;--line:rgba(60,60,67,.12);--green:#34c759;--orange:#ff9500;--red:#ff3b30;--purple:#af52de;--teal:#32ade6;--app-font:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:18px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.72 var(--app-font)}
+a{color:var(--blue);overflow-wrap:anywhere}
+.hero{background:linear-gradient(145deg,#101d32,#007aff);color:white;padding:42px 20px 36px}
+.hero-inner,.layout{max-width:980px;margin:auto}
+.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:.76rem;font-weight:800;opacity:.8}
+h1{font-size:clamp(2rem,7vw,3.5rem);line-height:1.1;margin:.5rem 0 1rem;letter-spacing:-.04em}
+.hero p{max-width:700px;font-size:1.08rem;color:#edf5ff;margin:0}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.pill{border:1px solid #ffffff65;background:#ffffff16;border-radius:999px;padding:5px 11px;font-size:.84rem}
+.layout{padding:22px 16px 56px}
+.notice{border:1px solid #c5d9ef;background:#eaf3ff;border-radius:15px;padding:15px 17px;margin-bottom:18px}
+.notice strong{color:var(--navy)}
+.grid{display:grid;grid-template-columns:1fr;gap:18px}
+nav,.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 3px 14px rgba(0,0,0,.035)}
+nav{padding:18px;align-self:start}
+nav h2{font-size:1.02rem;margin:0 0 8px}
+nav ol{margin:0;padding-left:1.25rem}
+nav li{padding:2px 0}
+nav a{text-decoration:none}
+.card{padding:22px 20px;margin-bottom:18px;min-width:0}
+h2{font-size:1.55rem;line-height:1.25;margin:0 0 12px;color:var(--navy);letter-spacing:-.02em}
+h3{font-size:1.12rem;line-height:1.35;margin:22px 0 8px;color:#244d78}
+h4{font-size:1rem;margin:16px 0 5px}
+p{margin:8px 0 12px}
+ul,ol{padding-left:1.3rem}
+li{margin:5px 0}
+.small{font-size:.91rem;color:var(--muted)}
+.callout{border-left:4px solid var(--blue);background:#f0f6ff;padding:12px 14px;border-radius:0 10px 10px 0;margin:14px 0}
+.warn{border-left-color:#d97706;background:#fff7e8}
+.danger{border-left-color:#c0392b;background:#fff0ef}
+.good{border-left-color:var(--green);background:#edfaf4}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.94rem}
+th,td{padding:10px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#f1f6fb;color:#244d78}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.table-wrap table{margin:0;min-width:440px}
+/* App-matched visual examples */
+.app-visual{margin:18px auto 22px;max-width:470px;padding:14px;background:linear-gradient(145deg,#e9edf4,#f7f8fb);border:1px solid #dce1e9;border-radius:22px;box-shadow:0 8px 22px #17203312;overflow:hidden}
+.app-visual svg{display:block;width:100%;height:auto;font-family:Manrope,-apple-system,BlinkMacSystemFont,sans-serif}
+.app-visual figcaption{font-size:.82rem;line-height:1.45;color:#626873;text-align:center;padding:10px 6px 0}
+.visual-tag{display:inline-block;background:#e8f2ff;color:#0065d1;border-radius:999px;padding:4px 9px;font-size:.76rem;font-weight:800;margin-bottom:8px}
+@media(max-width:480px){.app-visual{padding:8px;border-radius:16px;margin:14px auto 18px}.app-visual figcaption{font-size:.78rem}}
+.status{font-weight:750;white-space:nowrap}
+.s-green{color:var(--green)}.s-red{color:var(--red)}.s-orange{color:var(--orange)}.s-purple{color:var(--purple)}.s-teal{color:var(--teal)}
+.steps{counter-reset:step;list-style:none;padding:0}
+.steps li{counter-increment:step;position:relative;padding-left:42px;margin:14px 0;min-height:30px}
+.steps li:before{content:counter(step);position:absolute;left:0;top:0;width:29px;height:29px;border-radius:50%;background:#e3effd;color:var(--navy);font-weight:800;display:grid;place-items:center}
+.kbd{display:inline-block;background:#edf1f6;border:1px solid #d7e0ea;border-radius:6px;padding:0 6px;font-size:.9em}
+footer{max-width:980px;margin:auto;padding:0 16px 36px;color:var(--muted);font-size:.9rem}
+@media(min-width:820px){.hero{padding:58px 28px 48px}.layout{padding:28px 24px 60px}.grid{grid-template-columns:250px minmax(0,1fr);align-items:start}nav{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto}.card{padding:28px}.hero-inner{padding:0 24px}}
+@media(max-width:480px){body{font-size:15.5px}.hero{padding:32px 18px 28px}.layout{padding:14px 10px 40px}.card{padding:18px 15px;border-radius:13px}nav{padding:15px}.pills{gap:6px}.pill{font-size:.78rem}h2{font-size:1.38rem}th,td{padding:8px}}
+@media print{body{background:white}.hero{background:#173f6b!important;print-color-adjust:exact}.layout{max-width:none;padding:12px}.grid{display:block}nav{display:none}.card{box-shadow:none;break-inside:avoid}.hero{padding:24px}a{color:inherit}}
+</style>
+</head>
+<body>
+<header class="hero">
+ <div class="hero-inner">
+  <div class="eyebrow">Tanıtım ve kullanım kılavuzu</div>
+  <h1>Ödev Defteri</h1>
+  <p>Ödevleri sınıf ve ders bazında planlamak, kontrol gününde öğrenci durumlarını kaydetmek, çalışma geçmişini izlemek ve gerekli bilgileri paylaşmak için hazırlanmış pratik bir öğretmen aracı.</p>
+  <div class="pills"><span class="pill">Telefon uyumlu</span><span class="pill">Sınıf ve öğrenci yönetimi</span><span class="pill">Otomatik performans puanı</span><span class="pill">Yedekleme ve geri yükleme</span></div>
+ </div>
+</header>
+<main class="layout">
+ <div class="notice"><strong>Önemli:</strong> Bu kılavuz, incelenen HTML dosyasındaki işleyiş esas alınarak hazırlanmıştır. Uygulama bir sunucu hesabı veya çevrim içi eşitleme mekanizması göstermiyor; kayıtlar kullanılan tarayıcıda tutuluyor. Bu nedenle cihaz ve tarayıcı değiştirildiğinde verilerin kendiliğinden taşınacağı varsayılmamalıdır.</div>
+ <div class="grid">
+  <nav aria-label="İçindekiler">
+   <h2>İçindekiler</h2>
+   <ol>
+    <li><a href="#tani">Uygulamayı tanıyalım</a></li>
+    <li><a href="#baslangic">İlk kurulum</a></li>
+    <li><a href="#sinif">Sınıf ve öğrenci yönetimi</a></li>
+    <li><a href="#odev">Ödev oluşturma</a></li>
+    <li><a href="#kontrol">Ödev kontrolü</a></li>
+    <li><a href="#puan">Puanlama sistemi</a></li>
+    <li><a href="#gecmis">Geçmiş ve istisnalar</a></li>
+    <li><a href="#paylasim">Paylaşım özellikleri</a></li>
+    <li><a href="#yedek">Yedekleme ve geri yükleme</a></li>
+    <li><a href="#gizlilik">Veri saklama ve gizlilik</a></li>
+    <li><a href="#kurallar">Uygulamanın önemli kuralları</a></li>
+    <li><a href="#sorun">Sorun giderme</a></li>
+   </ol>
+  </nav>
+  <div>
+   <section class="card" id="tani">
+    <h2>1. Uygulamayı tanıyalım</h2>
+    <p>Ödev Defteri, öğretmenin verdiği ödevleri kayıt altında tutmasını ve öğrencilerin ödev durumlarını düzenli biçimde izlemesini amaçlar. Arayüz, küçük ekranlarda rahat kullanılacak kartlar, büyük dokunma alanları ve alt gezinme çubuğu ile tasarlanmıştır.</p>
+<figure class="app-visual" aria-label="Ödevler ekranı örnek görünümü"><span class="visual-tag">UYGULAMA EKRANI · ÖRNEK</span><svg viewBox="0 0 340 430" role="img" aria-label="Ödevler sayfasında filtreler, ödev kartı ve alt menü"><rect x="1" y="1" width="338" height="428" rx="25" fill="#f2f2f7" stroke="#d5d8df"/><text x="20" y="37" font-size="24" font-weight="800" fill="#1c1c1e">Ödevler</text><circle cx="258" cy="29" r="15" fill="#fff"/><text x="253" y="34" font-size="13" fill="#007aff">?</text><circle cx="294" cy="29" r="15" fill="#fff"/><path d="M289 28h10m-8 -4 8 4-8 4" stroke="#007aff" stroke-width="1.8" fill="none"/><circle cx="319" cy="29" r="15" fill="#fff"/><path d="M315 23h8v12h-8z M313 25h2 M323 25h2" stroke="#007aff" stroke-width="1.5" fill="none"/><rect x="16" y="53" width="48" height="31" rx="16" fill="#1c1c1e"/><text x="40" y="73" font-size="11" text-anchor="middle" font-weight="700" fill="#fff">Tümü</text><rect x="70" y="53" width="62" height="31" rx="16" fill="#fff"/><text x="101" y="73" font-size="11" text-anchor="middle" fill="#1c1c1e">9-A</text><rect x="138" y="53" width="62" height="31" rx="16" fill="#fff"/><text x="169" y="73" font-size="11" text-anchor="middle" fill="#1c1c1e">10-B</text><rect x="16" y="98" width="308" height="202" rx="18" fill="#fff"/><rect x="30" y="113" width="139" height="23" rx="7" fill="#e5f1ff"/><text x="39" y="128" font-size="10.5" font-weight="700" fill="#007aff">9-A · Matematik</text><rect x="176" y="113" width="23" height="23" rx="11" fill="#dcecff"/><text x="187.5" y="128" font-size="11" font-weight="800" text-anchor="middle" fill="#007aff">4</text><text x="30" y="160" font-size="15" font-weight="800" fill="#1c1c1e">Bileşke İşlemi</text><text x="30" y="181" font-size="11.5" fill="#8e8e93">Soru Bankası · ▤ 42–47</text><circle cx="38" cy="207" r="5" fill="#8e8e93"/><text x="49" y="211" font-size="10.5" fill="#8e8e93">12 Eki</text><circle cx="114" cy="207" r="5" fill="#ff9500"/><text x="125" y="211" font-size="10.5" fill="#ff9500">19 Eki</text><circle cx="284" cy="124" r="14" fill="#e5e5ea"/><path d="M278 124h12m-4 -4 4 4-4 4" stroke="#007aff" stroke-width="1.5" fill="none"/><rect x="30" y="230" width="280" height="1" fill="#ececf0"/><text x="30" y="251" font-size="11" fill="#1c1c1e">Öğrenci kontrolü</text><rect x="30" y="261" width="72" height="25" rx="13" fill="#e2f8e8"/><text x="66" y="277" font-size="10.5" font-weight="700" text-anchor="middle" fill="#248b42">✓ Yaptı</text><rect x="108" y="261" width="82" height="25" rx="13" fill="#fff0d9"/><text x="149" y="277" font-size="10.5" font-weight="700" text-anchor="middle" fill="#a95b00">Eksik</text><rect x="196" y="261" width="92" height="25" rx="13" fill="#ffe5e3"/><text x="242" y="277" font-size="10.5" font-weight="700" text-anchor="middle" fill="#c62828">Yapmadı</text><rect x="16" y="312" width="308" height="100" rx="18" fill="#fff"/><rect x="30" y="326" width="132" height="23" rx="7" fill="#e5f1ff"/><text x="39" y="341" font-size="10.5" font-weight="700" fill="#007aff">9-A · Matematik</text><text x="30" y="370" font-size="14" font-weight="700" fill="#1c1c1e">Üçgenlerde Benzerlik</text><text x="30" y="390" font-size="10.5" fill="#8e8e93">Soru Bankası · 56–60</text><circle cx="296" cy="368" r="16" fill="#007aff"/><path d="M296 360v16m-8-8h16" stroke="#fff" stroke-width="2.5"/><rect x="82" y="399" width="176" height="22" rx="11" fill="#fff" stroke="#e0e0e5"/><text x="114" y="413" font-size="9.5" fill="#8e8e93">▦ Ödevler</text><text x="194" y="413" font-size="9.5" fill="#8e8e93">♙ Sınıflar</text></svg><figcaption>Uygulamadaki açık gri zemin, beyaz kartlar, mavi vurgular ve Manrope yazı karakteri temel alınarak çizilmiş örnek görünüm.</figcaption></figure>
+    <h3>Ana bölümler</h3>
+    <ul>
+     <li><strong>Ödevler:</strong> Ödev kartlarını görüntüleme, sınıfa göre filtreleme, yeni ödev ekleme, düzenleme, silme, sonuçları kontrol etme ve paylaşma alanı.</li>
+     <li><strong>Sınıflar:</strong> Sınıf/ders kayıtlarını ve her sınıfa bağlı öğrencileri yönetme alanı.</li>
+     <li><strong>Öğrenci geçmişi:</strong> Öğrencinin kendisine atanmış ödevlerini, durumlarını ve gecikmelerini inceleme alanı.</li>
+     <li><strong>Yardım:</strong> Uygulamanın temel akışını anlatan altı adımlı etkileşimli tanıtım.</li>
+     <li><strong>Yedekle / Yükle:</strong> Verileri JSON dosyasına aktarma veya daha önce alınmış yedeği geri yükleme.</li>
+    </ul>
+    <p>Ödev kartına dokunarak öğrenci listesini açabilirsiniz. Kartın üzerindeki paylaşım ve düzenleme simgeleri ayrı işlemler yapar. Sağ alttaki <strong>+</strong> düğmesi, bulunduğunuz bölüme göre ödev, sınıf veya öğrenci ekler.</p>
+   </section>
+
+   <section class="card" id="baslangic">
+    <h2>2. İlk kurulum ve önerilen sıra</h2>
+    <ol class="steps">
+     <li><strong>Sınıflar</strong> sekmesini açın ve <strong>+</strong> düğmesine basın.</li>
+     <li>Sınıf adını (ör. 9-A) ve ders adını (ör. Matematik) girip kaydedin.</li>
+     <li>Sınıf kartına dokunun; öğrenci ekranında <strong>+</strong> ile öğrencileri ad soyad olarak ekleyin.</li>
+     <li><strong>Ödevler</strong> sekmesine dönün. <strong>+</strong> ile ödev oluşturun; sınıfı, konuyu, kaynağı, sayfa aralığını ve tarihleri girin.</li>
+     <li>Ödev kartını açıp öğrenci adlarının yanındaki durum etiketlerine kontrol sırasında dokunun.</li>
+     <li>Düzenli aralıklarla <strong>Yedekle</strong> seçeneğiyle bir yedek dosyası indirin.</li>
+    </ol>
+    <div class="callout good">İlk kullanımdan önce sınıf ve öğrenci listenizi tamamlamak işinizi kolaylaştırır. Yeni bir ödev oluşturulduğunda, o sınıfta o anda kayıtlı olan öğrenciler ödeve otomatik olarak dahil edilir.</div>
+   </section>
+
+   <section class="card" id="sinif">
+    <h2>3. Sınıf ve öğrenci yönetimi</h2>
+    <h3>Sınıf ekleme ve düzenleme</h3>
+    <p>Sınıf adı ile ders adı zorunludur. Örneğin aynı sınıf düzeyi için Matematik ve Fizik kayıtlarını ayrı sınıf kartları olarak tutabilirsiniz. Sınıf kartında öğrenci sayısı görünür. Kalem simgesi mevcut sınıfın adını veya dersini değiştirmek için kullanılır.</p>
+    <h3>Öğrenci ekleme ve düzenleme</h3>
+    <p>Bir sınıfı açtıktan sonra öğrencileri ad soyad ve bağlı oldukları sınıfla kaydedebilirsiniz. Öğrenci satırındaki kalem simgesi adı veya sınıf bağlantısını düzenler. Öğrenci adına/satırına dokunmak öğrencinin ödev geçmişini açar.</p>
+<figure class="app-visual"><span class="visual-tag">UYGULAMA EKRANI · ÖRNEK</span><svg viewBox="0 0 340 330" role="img" aria-label="Sınıflar ekranında sınıf kartları"><rect x="1" y="1" width="338" height="328" rx="25" fill="#f2f2f7" stroke="#d5d8df"/><text x="20" y="38" font-size="24" font-weight="800" fill="#1c1c1e">Sınıflar</text><text x="20" y="58" font-size="11" fill="#8e8e93">3 sınıf</text><rect x="16" y="75" width="308" height="66" rx="15" fill="#fff"/><circle cx="47" cy="108" r="19" fill="#e5f1ff"/><text x="47" y="113" text-anchor="middle" font-size="13" font-weight="800" fill="#007aff">9-A</text><text x="77" y="103" font-size="14" font-weight="800" fill="#1c1c1e">9-A</text><text x="77" y="122" font-size="11" fill="#8e8e93">Matematik · 18 öğrenci</text><text x="296" y="112" font-size="17" fill="#8e8e93">✎</text><rect x="16" y="151" width="308" height="66" rx="15" fill="#fff"/><circle cx="47" cy="184" r="19" fill="#e4f8e8"/><text x="47" y="189" text-anchor="middle" font-size="13" font-weight="800" fill="#248b42">10-B</text><text x="77" y="179" font-size="14" font-weight="800" fill="#1c1c1e">10-B</text><text x="77" y="198" font-size="11" fill="#8e8e93">Geometri · 16 öğrenci</text><text x="296" y="188" font-size="17" fill="#8e8e93">✎</text><rect x="16" y="227" width="308" height="66" rx="15" fill="#fff"/><circle cx="47" cy="260" r="19" fill="#f5e7ff"/><text x="47" y="265" text-anchor="middle" font-size="13" font-weight="800" fill="#9747c9">11-A</text><text x="77" y="255" font-size="14" font-weight="800" fill="#1c1c1e">11-A</text><text x="77" y="274" font-size="11" fill="#8e8e93">Matematik · 20 öğrenci</text><text x="296" y="264" font-size="17" fill="#8e8e93">✎</text><circle cx="296" cy="298" r="20" fill="#007aff"/><path d="M296 288v20m-10-10h20" stroke="#fff" stroke-width="2.5"/></svg><figcaption>Sınıf kartına dokunarak öğrenci listesine girilir; kalem simgesi sınıf bilgilerini düzenler, + düğmesi yeni sınıf ekler.</figcaption></figure>
+    <h3>Silme işlemlerinin etkisi</h3>
+    <div class="callout danger"><strong>Dikkat: Silme işlemleri geri alınamaz.</strong> Bir ödevi silmek o ödevin durum kayıtlarını da siler. Bir öğrenciyi silmek o öğrenciye ait durum kayıtlarını kaldırır. Bir sınıfı silmek ise o sınıfa bağlı öğrencileri ve sınıfın ödevlerini de siler. Silmeden önce yedek alın.</div>
+    <p>Öğrenciyi başka sınıfa taşımak, öğrenci kaydındaki sınıf alanını değiştirmekle yapılır. Geçmiş ödevlerde bu öğrencinin kayıtlarının otomatik olarak başka sınıfa taşınacağı varsayılmamalıdır; geçmiş kayıtların sınıf/ödev bağlantıları ayrıca değerlendirilmelidir.</p>
+   </section>
+
+   <section class="card" id="odev">
+    <h2>4. Ödev oluşturma ve düzenleme</h2>
+    <p>Ödevler ekranındaki <strong>+</strong> düğmesine basın. Formda aşağıdaki bilgiler bulunur:</p>
+<figure class="app-visual"><span class="visual-tag">UYGULAMA EKRANI · ÖRNEK</span><svg viewBox="0 0 340 430" role="img" aria-label="Yeni ödev formu örnek görünümü"><rect x="1" y="1" width="338" height="428" rx="25" fill="#f2f2f7" stroke="#d5d8df"/><rect x="1" y="1" width="338" height="55" rx="25" fill="#fff"/><rect x="1" y="30" width="338" height="26" fill="#fff"/><rect x="140" y="9" width="60" height="5" rx="3" fill="#d5d5da"/><text x="20" y="40" font-size="17" font-weight="800" fill="#1c1c1e">Yeni Ödev</text><text x="310" y="40" font-size="12" text-anchor="end" fill="#007aff">İptal</text><text x="20" y="82" font-size="11" font-weight="700" fill="#8e8e93">SINIF</text><rect x="16" y="91" width="308" height="42" rx="11" fill="#fff" stroke="#e3e3e8"/><text x="29" y="117" font-size="13" fill="#1c1c1e">9-A · Matematik</text><path d="M301 108l5 5 5-5" stroke="#8e8e93" stroke-width="1.6" fill="none"/><text x="20" y="157" font-size="11" font-weight="700" fill="#8e8e93">KONU</text><rect x="16" y="166" width="308" height="42" rx="11" fill="#fff" stroke="#e3e3e8"/><text x="29" y="192" font-size="13" fill="#1c1c1e">Bileşke İşlemi</text><text x="20" y="232" font-size="11" font-weight="700" fill="#8e8e93">KAYNAK</text><rect x="16" y="241" width="308" height="42" rx="11" fill="#fff" stroke="#e3e3e8"/><text x="29" y="267" font-size="13" fill="#1c1c1e">Soru Bankası</text><text x="20" y="307" font-size="11" font-weight="700" fill="#8e8e93">SAYFA ARALIĞI</text><rect x="16" y="316" width="308" height="40" rx="11" fill="#fff" stroke="#e3e3e8"/><text x="29" y="341" font-size="13" fill="#1c1c1e">42–47</text><text x="20" y="378" font-size="11" font-weight="700" fill="#8e8e93">KONTROL TARİHİ</text><rect x="16" y="386" width="308" height="29" rx="9" fill="#fff" stroke="#e3e3e8"/><text x="29" y="405" font-size="12" fill="#1c1c1e">19.10.2026</text><rect x="16" y="416" width="308" height="1" fill="#f2f2f7"/></svg><figcaption>Örnek formda konu zorunludur. Kaynak ve sayfa aralığını, veriliş ve kontrol tarihlerini de kaydetmeden önce kontrol edin.</figcaption></figure>
+    <div class="table-wrap"><table><thead><tr><th>Alan</th><th>Ne işe yarar?</th></tr></thead><tbody>
+     <tr><td>Sınıf</td><td>Ödevin bağlı olduğu sınıf ve ders. Yeni ödevde seçilir; düzenlemede mevcut sınıf gösterilir.</td></tr>
+     <tr><td>Konu</td><td>Ödevin başlığıdır ve boş bırakılamaz.</td></tr>
+     <tr><td>Kaynak</td><td>Kitap, fasikül, soru bankası veya diğer kaynağın adı.</td></tr>
+     <tr><td>Sayfa Aralığı</td><td>Yapılacak sayfalar; ör. 42–47. Metin alanıdır, farklı biçimlerde yazılabilir.</td></tr>
+     <tr><td>Veriliş Tarihi</td><td>Ödevin verildiği tarih. Varsayılan olarak bugündür.</td></tr>
+     <tr><td>Kontrol Tarihi</td><td>Ödevin kontrol edilmesinin planlandığı tarih. Varsayılan olarak bugünden yedi gün sonrasıdır.</td></tr>
+    </tbody></table></div>
+    <p>Kaydedilen ödev, seçilen sınıfta bir sonraki ödev numarasını alır. Ödevin öğrenci listesi kayıt anındaki sınıf üyelerinden oluşturulur. Sonradan sınıfa öğrenci eklemek, o öğrenciyi daha önce verilmiş tüm ödevlere kendiliğinden eklemez.</p>
+    <h3>Ödev kartında görülen bilgiler</h3>
+    <ul>
+     <li>Sınıf ve ders adı ile ödev sıra numarası</li>
+     <li>Konu, kaynak ve sayfa aralığı</li>
+     <li>Veriliş ve kontrol tarihleri</li>
+     <li>Kontrol tarihi geçmişse gecikme uyarısı</li>
+     <li>Tüm atanmış öğrenciler “Yaptı” olduğunda tamamlandı bilgisi</li>
+    </ul>
+    <p>Ödevin yanındaki kalem simgesiyle konu, kaynak, sayfa ve tarihler düzenlenebilir. Ödevin sınıfı, düzenleme ekranında değiştirilemez. Silme seçeneği onay ister.</p>
+   </section>
+
+   <section class="card" id="kontrol">
+    <h2>5. Ödev kontrolü: durumlar ne anlama gelir?</h2>
+    <p>Ödev kartına dokunarak öğrenci listesini açın. Öğrencinin yanındaki durum etiketine her dokunuşta durum bir sonraki seçeneğe geçer. Sıra döngüseldir; son durumdan sonra yeniden boş duruma döner.</p>
+<figure class="app-visual"><span class="visual-tag">UYGULAMA EKRANI · ÖRNEK</span><svg viewBox="0 0 340 315" role="img" aria-label="Ödev kartında öğrenci durum etiketleri"><rect x="1" y="1" width="338" height="313" rx="25" fill="#f2f2f7" stroke="#d5d8df"/><rect x="16" y="16" width="308" height="282" rx="17" fill="#fff"/><rect x="29" y="30" width="136" height="23" rx="7" fill="#e5f1ff"/><text x="38" y="45" font-size="10.5" font-weight="700" fill="#007aff">9-A · Matematik</text><text x="29" y="77" font-size="16" font-weight="800" fill="#1c1c1e">Bileşke İşlemi</text><text x="29" y="96" font-size="11" fill="#8e8e93">Soru Bankası · 42–47</text><line x1="29" y1="110" x2="310" y2="110" stroke="#ececf0"/><text x="29" y="133" font-size="12" font-weight="700" fill="#1c1c1e">Ayşe Yılmaz</text><rect x="194" y="117" width="105" height="26" rx="13" fill="#e2f8e8"/><text x="246.5" y="134" text-anchor="middle" font-size="11" font-weight="700" fill="#248b42">✓ Yaptı</text><line x1="29" y1="153" x2="310" y2="153" stroke="#ececf0"/><text x="29" y="176" font-size="12" font-weight="700" fill="#1c1c1e">Mehmet Demir</text><rect x="194" y="160" width="105" height="26" rx="13" fill="#fff0d9"/><text x="246.5" y="177" text-anchor="middle" font-size="11" font-weight="700" fill="#a95b00">Eksik</text><line x1="29" y1="196" x2="310" y2="196" stroke="#ececf0"/><text x="29" y="219" font-size="12" font-weight="700" fill="#1c1c1e">Elif Kaya</text><rect x="194" y="203" width="105" height="26" rx="13" fill="#ffe5e3"/><text x="246.5" y="220" text-anchor="middle" font-size="11" font-weight="700" fill="#c62828">Yapmadı</text><line x1="29" y1="239" x2="310" y2="239" stroke="#ececf0"/><text x="29" y="262" font-size="12" font-weight="700" fill="#1c1c1e">Can Arslan</text><rect x="194" y="246" width="105" height="26" rx="13" fill="#e7f7fd"/><text x="246.5" y="263" text-anchor="middle" font-size="11" font-weight="700" fill="#087e9d">Kitabı Yok</text></svg><figcaption>Öğrencinin durum etiketine tekrar dokunarak sıradaki duruma geçebilirsiniz. Renkler durumu hızlı ayırt etmeye yardımcı olur.</figcaption></figure>
+    <div class="table-wrap"><table><thead><tr><th>Durum</th><th>Yorum</th><th>Renk</th></tr></thead><tbody>
+     <tr><td class="status">— / Boş</td><td>Henüz kontrol edilmedi veya durum temizlendi.</td><td>Gri</td></tr>
+     <tr><td class="status s-green">Yaptı</td><td>Öğrenci ödevi tamamladı.</td><td>Yeşil</td></tr>
+     <tr><td class="status s-red">Yapmadı</td><td>Ödev yapılmamış.</td><td>Kırmızı</td></tr>
+     <tr><td class="status s-orange">Eksik</td><td>Ödevin bir kısmı yapılmış veya tamamlanmamış.</td><td>Turuncu</td></tr>
+     <tr><td class="status s-purple">Gelmedi</td><td>Öğrenci kontrol sırasında derste yoktu.</td><td>Mor</td></tr>
+     <tr><td class="status s-teal">Kitabı Yok</td><td>Öğrenci kitabını yanında getirmedi.</td><td>Turkuaz</td></tr>
+    </tbody></table></div>
+    <p>Bir durumu değiştirmek için aynı etikete tekrar dokunmanız yeterlidir. Durum her değiştiğinde kaydedilir. Yanlışlıkla farklı bir duruma geçtiyseniz etikete yeniden dokunarak doğru duruma ulaşabilirsiniz.</p>
+    <div class="callout">“Gelmedi” ile “Kitabı Yok” birbirinden farklıdır. Uygulama bunları ayrı kaydeder ve puanlamada da aynı şekilde değerlendirmez. Bu etiketler öğretmenin kayıt amacına hizmet eder; tek başlarına öğrencinin davranış nedenini açıklamaz.</div>
+    <h3>Ödevin tamamlanması</h3>
+    <p>Bir ödevin tamamlandı sayılması için atanmış en az bir öğrenci bulunmalı ve atanmış öğrencilerin tamamının durumu <strong>Yaptı</strong> olmalıdır. “Eksik”, “Gelmedi”, “Kitabı Yok”, “Yapmadı” veya boş kalan tek bir kayıt bile ödevin tamamlanmasını engeller. Tamamlanan ödev kartı soluklaşır ve listede aktif ödev olarak gösterilmez.</p>
+   </section>
+
+   <section class="card" id="puan">
+    <h2>6. Otomatik performans puanı</h2>
+    <p>Sınıfın öğrenci listesinde her öğrencinin yanında hesaplanan bir puan gösterilebilir. Puan, ilgili öğrencinin dahil olduğu ödevlerdeki puanların aritmetik ortalamasıdır; 10 üzerinden değerlendirilir. Henüz puana katılabilecek bir kayıt yoksa puan gösterilmez.</p>
+<figure class="app-visual"><span class="visual-tag">UYGULAMA EKRANI · ÖRNEK</span><svg viewBox="0 0 340 220" role="img" aria-label="Öğrenci listesinde puan ve geçmiş çizgileri"><rect x="1" y="1" width="338" height="218" rx="25" fill="#f2f2f7" stroke="#d5d8df"/><text x="20" y="34" font-size="22" font-weight="800" fill="#1c1c1e">9-A · Matematik</text><text x="20" y="54" font-size="11" fill="#8e8e93">Öğrenci performansı</text><rect x="16" y="68" width="308" height="56" rx="14" fill="#fff"/><circle cx="44" cy="96" r="17" fill="#e5f1ff"/><text x="44" y="101" text-anchor="middle" font-size="11" font-weight="800" fill="#007aff">AY</text><text x="70" y="92" font-size="12.5" font-weight="800" fill="#1c1c1e">Ayşe Yılmaz</text><rect x="70" y="102" width="142" height="5" rx="2.5" fill="#e5e5ea"/><rect x="70" y="102" width="127" height="5" rx="2.5" fill="#34c759"/><text x="297" y="99" font-size="16" font-weight="800" text-anchor="middle" fill="#248b42">9,2</text><rect x="16" y="132" width="308" height="56" rx="14" fill="#fff"/><circle cx="44" cy="160" r="17" fill="#fff0d9"/><text x="44" y="165" text-anchor="middle" font-size="11" font-weight="800" fill="#a95b00">MD</text><text x="70" y="156" font-size="12.5" font-weight="800" fill="#1c1c1e">Mehmet Demir</text><rect x="70" y="166" width="142" height="5" rx="2.5" fill="#e5e5ea"/><rect x="70" y="166" width="83" height="5" rx="2.5" fill="#ff9500"/><text x="297" y="163" font-size="16" font-weight="800" text-anchor="middle" fill="#a95b00">6,0</text><text x="20" y="207" font-size="10.5" fill="#8e8e93">Renkli küçük çizgiler önceki ödevleri özetler.</text></svg><figcaption>Öğrenci kartlarındaki puan, uygulamanın kayıtlı ödev durumlarından hesaplanır; bu çizim yalnızca görsel açıklama örneğidir.</figcaption></figure>
+    <div class="table-wrap"><table><thead><tr><th>Ödev durumu</th><th>Hesaba giren puan</th><th>Açıklama</th></tr></thead><tbody>
+     <tr><td class="status s-green">Zamanında Yaptı</td><td><strong>10</strong></td><td>Ödev kontrol tarihine kadar “Yaptı” olarak işaretlenmişse.</td></tr>
+     <tr><td class="status s-orange">Geç Yaptı</td><td><strong>7</strong></td><td>“Yaptı” durumu kontrol tarihinden sonra kaydedilmişse.</td></tr>
+     <tr><td class="status s-orange">Eksik</td><td><strong>5</strong></td><td>Eksik durumu puan ortalamasına 5 olarak katılır.</td></tr>
+     <tr><td class="status s-red">Yapmadı</td><td><strong>0</strong></td><td>Ortalama hesabına sıfır puanla katılır.</td></tr>
+     <tr><td class="status s-teal">Kitabı Yok</td><td><strong>0</strong></td><td>Ortalama hesabına sıfır puanla katılır.</td></tr>
+     <tr><td class="status s-purple">Gelmedi</td><td><strong>Hariç</strong></td><td>Ortalama hesabına alınmaz.</td></tr>
+     <tr><td>Boş / kontrol edilmedi</td><td><strong>Hariç</strong></td><td>Durum seçilmediği için ortalamaya dahil edilmez.</td></tr>
+    </tbody></table></div>
+    <h3>Örnek hesaplama</h3>
+    <p>Bir öğrenci zamanında iki ödev yapmış (10 ve 10), bir ödevi geç yapmış (7), bir ödevi eksik bırakmış (5), bir ödevi yapmamış (0) ve bir derse gelmemiş olsun. “Gelmedi” hesaba katılmaz:</p>
+    <div class="callout good"><strong>Ortalama = (10 + 10 + 7 + 5 + 0) ÷ 5 = 6,4</strong><br>Gelmedi kaydı ve henüz işaretlenmemiş ödevler payda içine girmez.</div>
+    <h3>Puan renginin anlamı</h3>
+    <ul>
+     <li><span class="s-green"><strong>Yeşil:</strong></span> 8,0 ve üzeri</li>
+     <li><span class="s-orange"><strong>Turuncu:</strong></span> 5,0 ile 7,9 arası</li>
+     <li><span class="s-red"><strong>Kırmızı:</strong></span> 5,0 altı</li>
+    </ul>
+    <div class="callout warn"><strong>Önemli teknik ayrıntı:</strong> Geçlik hesabı, “Yaptı” durumunun kaydedildiği gün ile kontrol tarihini karşılaştırır. Bu nedenle eski bir ödevi bugün ilk kez “Yaptı” olarak işaretlemek, özel geçmiş kayıt istisnası yoksa geç kabul edilebilir. Geçmişe dönük eklenen ödevler ve sonradan geçmiş ödeve dahil edilen öğrenciler için uygulama geçlik cezasını uygulamayacak şekilde tasarlanmıştır.</div>
+    <p>Puan, öğretmenin kullandığı takip ölçütüdür; tek başına öğrencinin genel başarısı veya mazereti hakkında kesin hüküm vermez. Özellikle devamsızlık ve kitap unutma gibi durumları yorumlarken öğretmenin bağlamı ayrıca değerlendirmesi gerekir.</p>
+   </section>
+
+   <section class="card" id="gecmis">
+    <h2>7. Geçmiş ödevler, öğrenci geçmişi ve istisnalar</h2>
+    <h3>Ödev listesinin düzeni</h3>
+    <p>Ödevler, veriliş tarihine göre yeni olan üstte görünecek şekilde sıralanır. “Tümü” filtresinde tamamlanan ödevler ve kontrol tarihi 14 günden daha eski olan ödevler normal aktif listede gösterilmez. Bu kayıtlar silinmiş değildir; ilgili sınıf filtresine geçip <strong>Geçmiş ödevler</strong> bölümünü açarak erişebilirsiniz.</p>
+    <ul>
+     <li>Kontrol tarihi geçmiş ancak 14 günlük eşiği aşmamış ve tamamlanmamış ödevler aktif listede kalabilir; gecikme uyarısı görünür.</li>
+     <li>Kontrol tarihi üzerinden 14 günden fazla geçmiş ve tamamlanmamış ödevler geçmiş bölümünde tutulur.</li>
+     <li>Tüm öğrencileri “Yaptı” olan ödevler tamamlanmış sayılır ve aktif listeden çıkarılır.</li>
+     <li>Sınıf filtresinin yanında bir nokta görünmesi, o sınıfta tamamlanmamış eski ödev bulunduğunu belirtir.</li>
+    </ul>
+    <h3>Öğrenci geçmiş ekranı</h3>
+    <p>Sınıf içindeki öğrenciye dokununca geçmiş ekranı açılır. Toplam atanmış ödev sayısı, “Yaptı” sayısı, geç yapılanlar, “Yapmadı” sayısı ve diğer işaretli durumlar özetlenir. Her ödev satırında ders/sınıf, ödev numarası, konu, kontrol tarihi ve değiştirilebilir durum etiketi bulunur.</p>
+    <h3>Sonradan eklenen öğrenci için eski ödevler</h3>
+    <p>Bir öğrenci sınıfa sonradan eklenmişse, geçmiş ekranında bu öğrencinin dahil olmadığı eski ödevlerle ilgili bir bildirim çıkabilir. <strong>Düzenle</strong> seçeneğiyle her geçmiş ödev için:</p>
+    <ul>
+     <li><strong>Ekle:</strong> Öğrenciyi ilgili ödeve dahil eder. Yeni kayıt boş durumdan başlar ve geçmişe dönük sayılır; geç cezası uygulanmaz.</li>
+     <li><strong>Muaf:</strong> Öğrencinin bu eski ödev için dahil edilmeyeceğini kaydeder. Bu kayıt öğrenci için bekleyen eksik geçmiş ödev uyarısını kaldırmaya yardımcı olur.</li>
+    </ul>
+    <p>Seçimlerin uygulanması için penceredeki <strong>Kaydet</strong> düğmesine basılmalıdır. Bu özellik, yeni eklenen öğrencinin geçmişte sınıfta olmadığı dönemlere ait ödevlerle haksız biçimde değerlendirilmesini önlemeye yardımcı olur.</p>
+    <h3>Geçmiş şeritleri</h3>
+    <p>Ödev kartlarında ve öğrenci listesinde görülen küçük renkli çizgiler, önceki ödev durumlarının görsel özetidir. Çizgiler tek başına ayrıntılı kayıt değildir; ayrıntı için öğrencinin geçmiş ekranını açın.</p>
+   </section>
+
+   <section class="card" id="paylasim">
+    <h2>8. Paylaşım özellikleri</h2>
+    <p>Ödev kartındaki paylaş simgesi, kayıt durumuna göre bir metin hazırlar. Öğrenci geçmiş ekranındaki paylaş simgesi de öğrencinin ödev geçmişini özetler.</p>
+    <h3>Ödev duyurusu</h3>
+    <p>Ödevde henüz hiçbir öğrenci için durum girilmemişse paylaşım metni; sınıf/ders, ödev numarası, konu, kaynak, sayfa aralığı, veriliş tarihi ve kontrol tarihini içerir.</p>
+    <h3>Ödev sonuçları</h3>
+    <p>En az bir öğrencinin durumu işaretlenmişse aynı simge bu kez sonuç metnini hazırlar. Metin, atanmış öğrencileri adlarına göre sıralar ve her öğrencinin durumunu, ayrıca geç yapılan ödevleri belirtir. Henüz işaretlenmemiş durumlar “Kontrol Edilmedi” şeklinde yazılır.</p>
+    <h3>Öğrenci geçmişi paylaşımı</h3>
+    <p>Öğrenci geçmişi metni öğrencinin adını, sınıfını/dersini, toplam ödev sayısını, “Yaptı” ve geç yapılan ödev sayısını, diğer işaretli durumları ve her ödevin kontrol tarihini içerir.</p>
+    <div class="callout warn"><strong>Gizlilik uyarısı:</strong> Paylaşım metinlerinde öğrenci adları ve ödev durumları bulunabilir. Bu bilgileri göndermeden önce alıcı grubunu ve paylaşmanın uygunluğunu kontrol edin. Uygulama mesajı sizin yerinize belirli bir WhatsApp grubuna otomatik göndermez; cihazın paylaşım penceresini açabilir veya metni panoya kopyalayabilir.</div>
+    <p>Tarayıcı ve cihaz destekliyorsa paylaşım menüsü açılır. Desteklenmiyorsa metin panoya kopyalanmaya çalışılır; ardından mesajlaşma uygulamasında yapıştırabilirsiniz. Paylaşım menüsünü kapatmak her durumda gönderim yapılmış olduğu anlamına gelmez.</p>
+   </section>
+
+   <section class="card" id="yedek">
+    <h2>9. Yedekleme ve geri yükleme</h2>
+    <h3>Yedek almak</h3>
+    <ol class="steps">
+     <li>Ödevler ekranının üst kısmındaki <strong>Yedekle</strong> simgesine dokunun.</li>
+     <li>Tarayıcı, tüm uygulama verisini JSON biçiminde bir dosyaya indirir.</li>
+     <li>Dosya adı <span class="kbd">odev-takip-yedek-YYYY-AA-GG.json</span> biçimindedir.</li>
+     <li>Dosyayı güvenli bir klasörde saklayın. Mümkünse düzenli olarak yeni yedek alın.</li>
+    </ol>
+    <p>Yedek; sınıflar, öğrenciler, ödevler ve durum kayıtlarını içeren uygulama verisini taşımak içindir. JSON dosyası metin tabanlıdır; öğrenci bilgilerini içerdiğinden herkese açık alanlarda saklanmamalıdır.</p>
+    <h3>Yedeği geri yüklemek</h3>
+    <ol class="steps">
+     <li><strong>Yükle</strong> simgesine dokunun.</li>
+     <li>Daha önce indirdiğiniz geçerli JSON yedek dosyasını seçin.</li>
+     <li>Uygulama, mevcut verilerin yedekteki verilerle değiştirileceği konusunda onay ister.</li>
+     <li>Yalnızca doğru dosya olduğundan emin olduktan sonra <strong>Yükle ve Değiştir</strong> seçeneğini onaylayın.</li>
+    </ol>
+    <div class="callout danger">Geri yükleme birleştirme yapmaz. Mevcut sınıf, öğrenci, ödev ve durum verilerinin yerine seçilen yedekteki verileri koyar. Güncel verileri korumak istiyorsanız önce mevcut durumun da yedeğini alın.</div>
+<figure class="app-visual"><span class="visual-tag">UYGULAMA EKRANI · ÖRNEK</span><svg viewBox="0 0 340 255" role="img" aria-label="Yedekleme ve geri yükleme işlemi"><rect x="1" y="1" width="338" height="253" rx="25" fill="#f2f2f7" stroke="#d5d8df"/><text x="20" y="36" font-size="22" font-weight="800" fill="#1c1c1e">Ödevler</text><rect x="16" y="54" width="308" height="184" rx="17" fill="#fff"/><circle cx="170" cy="95" r="25" fill="#e5f1ff"/><path d="M170 108V82m-9 9 9-9 9 9M156 112h28" stroke="#007aff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="170" y="139" font-size="15" font-weight="800" text-anchor="middle" fill="#1c1c1e">Verilerini yedekle</text><text x="170" y="158" font-size="10.5" text-anchor="middle" fill="#8e8e93">JSON dosyası olarak kaydet</text><rect x="35" y="174" width="270" height="27" rx="9" fill="#007aff"/><text x="170" y="192" font-size="11.5" font-weight="800" text-anchor="middle" fill="#fff">Yedekle</text><rect x="35" y="207" width="270" height="25" rx="9" fill="#fff" stroke="#007aff"/><text x="170" y="224" font-size="11.5" font-weight="700" text-anchor="middle" fill="#007aff">Yedekten Yükle</text></svg><figcaption>Yedekleme verileri dosyaya kaydeder. Geri yükleme mevcut kayıtların yerine geçer; yüklemeden önce mevcut verilerinizi de yedekleyin.</figcaption></figure>
+    <h3>Cihaz değişikliği</h3>
+    <p>Yeni cihazda veya farklı tarayıcıda devam etmek için yedek dosyasını o cihaza aktarın ve Yükle işlevini kullanın. Tarayıcı geçmişini/verilerini temizlemek, gizli sekme kullanmak veya farklı bir tarayıcıya geçmek kayıtların görünmemesine neden olabilir.</p>
+   </section>
+
+   <section class="card" id="gizlilik">
+    <h2>10. Veri saklama, gizlilik ve teknik ayrıntılar</h2>
+    <h3>Kayıtlar nerede tutuluyor?</h3>
+    <p>İncelenen dosya, uygulama durumunu tarayıcının <span class="kbd">localStorage</span> alanında <span class="kbd">odevTakipData_v1</span> anahtarıyla saklıyor. Kodda uygulama verilerini bir sunucuya gönderen veya kullanıcı hesabıyla eşitleyen bir API akışı görünmüyor. Bu, kayıtların aynı tarayıcı profili içinde tutulduğu anlamına gelir; başka cihazlarla kendiliğinden eşitlenmez.</p>
+    <h3>Bu ne anlama gelir?</h3>
+    <ul>
+     <li>Tarayıcı verileri temizlenirse kayıtlar kaybolabilir.</li>
+     <li>Aynı cihazda farklı tarayıcı veya farklı kullanıcı profili kullanmak ayrı kayıt alanları oluşturabilir.</li>
+     <li>Özel/gizli tarama pencereleri kalıcı veri saklama konusunda uygun olmayabilir.</li>
+     <li>Yedek dosyasına erişen biri dosyanın içindeki öğrenci ve ödev verilerini okuyabilir.</li>
+     <li>Paylaşım yoluyla gönderilen metinler, gönderdiğiniz mesajlaşma hizmetinin ve alıcıların kontrolüne geçer.</li>
+    </ul>
+    <h3>Harici bağlantılar ve font</h3>
+    <p>HTML dosyası yazı tipi için Google Fonts üzerinden Manrope yazı tipini yüklemeyi deniyor. İnternet erişimi yoksa yazı tipi yüklenmeyebilir; sistem yazı tipleriyle arayüz yine görüntülenebilir. Bu font isteği dışında, incelenen kodda uygulama kayıtlarını harici bir sunucuya gönderen açık bir servis çağrısı görünmüyor.</p>
+    <h3>Güvenlik sınırları</h3>
+    <p>Uygulamada giriş ekranı, parola koruması, kullanıcı rolleri veya şifrelenmiş yedek oluşturma özelliği görünmüyor. Tarayıcıda yerel saklama, tek başına şifreleme veya yetkisiz erişime karşı güçlü koruma anlamına gelmez. Cihazı başkalarıyla paylaşıyorsanız ekran kilidi kullanın; yedek dosyalarını koruyun ve öğrenci bilgilerini yalnızca gerekli kişilerle paylaşın.</p>
+    <div class="callout warn"><strong>Gizli bilgi notu:</strong> Dosyada API anahtarı, parola veya sunucu erişim bilgisi gibi açık bir gizli anahtar saptanmadı. Bununla birlikte dosyada uygulamanın işleyişini ortaya koyan kaynak kodu ve örnek başlangıç kayıtları bulunur. Paylaşmadan önce gerçek öğrenci verileri içeren yedekleri ve kişisel bilgileri ayrıca kontrol edin.</div>
+    <h3>Örnek veriler</h3>
+    <p>Uygulama, daha önce kaydedilmiş veri bulunamazsa örnek sınıflar, öğrenciler ve örnek bir ödevle başlar. Bunlar gerçek kayıtlarınız değilse kendi sınıf listenizi oluşturmadan önce örnek verileri gözden geçirin. Örnek adlar kodun içine yazılmıştır.</p>
+   </section>
+
+   <section class="card" id="kurallar">
+    <h2>11. Bilinmesi gereken önemli kurallar</h2>
+    <ul>
+     <li><strong>Ödev ataması anlık görüntüdür:</strong> Yeni ödev, o anda sınıfta bulunan öğrencileri alır. Sonradan eklenen öğrenciler için geçmiş ödevleri ayrıca ele alın.</li>
+     <li><strong>Kontrol tarihi puanı etkiler:</strong> “Yaptı” durumu kontrol tarihinden sonra girilirse geç puanı oluşabilir; geçmişe dönük ekleme istisnaları vardır.</li>
+     <li><strong>Boş ve Gelmedi puan değildir:</strong> Her ikisi de ortalama hesabından çıkarılır. “Yapmadı” ve “Kitabı Yok” ise sıfır puanla hesaba girer.</li>
+     <li><strong>Eksik beş puandır:</strong> Bu durum ortalamaya 5 olarak katılır.</li>
+     <li><strong>Ödevin tamamlanması katıdır:</strong> Atanmış tüm öğrenciler “Yaptı” olmalıdır; boş kayıtlar tamamlanmış sayılmaz.</li>
+     <li><strong>Eski ödevler silinmez:</strong> 14 günlük görünürlük kuralı liste düzenini etkiler; kayıt geçmiş bölümünde kalır.</li>
+     <li><strong>Paylaşım metni hassas olabilir:</strong> Sonuç paylaşımı sınıftaki öğrencilerin adlarını ve durumlarını içerebilir.</li>
+     <li><strong>Yedek yükleme değiştirir:</strong> Var olan kayıtları birleştirmek yerine yedektekilerle değiştirir.</li>
+     <li><strong>Silme işlemleri geri alınmaz:</strong> Silmeden önce yedek alınması önerilir.</li>
+    </ul>
+   </section>
+
+   <section class="card" id="sorun">
+    <h2>12. Sorun giderme</h2>
+    <h3>Öğrencilerim veya ödevlerim görünmüyor</h3>
+    <p>Doğru tarayıcıda ve aynı tarayıcı profilinde olduğunuzu kontrol edin. Sınıf filtresini değiştirin ve ilgili sınıfın geçmiş ödevler bölümünü açın. Daha önce yedek aldıysanız doğru dosyayı geri yükleyebilirsiniz.</p>
+    <h3>Ödev yeni listede görünmüyor</h3>
+    <p>Kontrol tarihi bugünden 14 günden daha eskiyse ödev doğrudan geçmişe alınabilir. İlgili sınıf filtresini seçip Geçmiş ödevler bölümüne bakın.</p>
+    <h3>Puan beklediğimden düşük veya boş</h3>
+    <p>“Yapmadı” ve “Kitabı Yok” sıfır puanla ortalamaya girer. “Gelmedi” ve boş kayıtlar hesaba katılmaz. “Yaptı” işaretinin kontrol tarihinden sonra kaydedilmesi 7 puana neden olabilir. Henüz puan hesabına girecek durum yoksa puan görünmez.</p>
+    <h3>Paylaşım açılmıyor</h3>
+    <p>Tarayıcı paylaşım menüsünü desteklemiyorsa uygulama metni panoya kopyalamayı dener. Kopyalama da desteklenmiyorsa farklı bir tarayıcıda deneyin. Paylaşım özelliği belirli bir uygulamaya otomatik gönderim garantisi vermez.</p>
+    <h3>Yedek dosyası yüklenmiyor</h3>
+    <p>Geçerli uygulama JSON yedeğini seçtiğinizden emin olun. Dosya bozuksa veya beklenen sınıf, öğrenci ve ödev alanları yoksa yükleme reddedilebilir. Dosyayı elle düzenlemek yerine mümkünse uygulamanın oluşturduğu orijinal yedeği kullanın.</p>
+    <h3>Yedek dosyamı kaybettim veya tarayıcı verisini sildim</h3>
+    <p>Yerel kayıtlar silinmiş ve elinizde yedek yoksa uygulama içinden önceki verileri geri getiren bir sunucu eşitlemesi bulunmuyor. Bu nedenle düzenli yedek almak en önemli önlemdir.</p>
+   </section>
+
+   <section class="card">
+    <h2>Kısa kontrol listesi</h2>
+    <ul>
+     <li>☐ Sınıflar ve ders adları doğru girildi.</li>
+     <li>☐ Her sınıfın öğrenci listesi kontrol edildi.</li>
+     <li>☐ Ödevin konusu, kaynağı, sayfaları ve tarihleri doğru.</li>
+     <li>☐ Kontrol sırasında her öğrenci için uygun durum seçildi.</li>
+     <li>☐ Geçmiş ödevler ve sonradan eklenen öğrenciler gözden geçirildi.</li>
+     <li>☐ Paylaşmadan önce öğrenci bilgilerinin doğru alıcılara gideceği kontrol edildi.</li>
+     <li>☐ Güncel JSON yedeği güvenli bir yerde saklandı.</li>
+    </ul>
+   </section>
+  </div>
+ </div>
+</main>
+<footer>Ödev Defteri — Tanıtım ve kullanım kılavuzu. Bu belge, sağlanan HTML uygulamasının kodunda görülen özellikler ve kurallar temel alınarak hazırlanmıştır. Uygulama güncellenirse bu kılavuzun da yeniden gözden geçirilmesi önerilir.</footer>
+</body>
+</html>
