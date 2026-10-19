@@ -101,6 +101,7 @@ header.top .head-actions{ display:flex; gap:8px; }
 .hist-legend .dot{ width:8px; height:8px; border-radius:2px; display:inline-block; margin-right:4px; vertical-align:-1px; }
 .status-pill{ display:flex; align-items:center; gap:5px; font-size:13px; font-weight:600; padding:6px 12px; border-radius:14px; cursor:pointer; user-select:none; white-space:nowrap; }
 .status-pill svg{ width:12px;height:12px; }
+.status-star{ margin-left:-3px; font-size:14px; font-weight:800; line-height:1; }
 .status-empty{ background:var(--gray-fill); color:var(--label-secondary); }
 .status-yapti{ background:rgba(52,199,89,0.14); color:var(--green); }
 .status-yapmadi{ background:rgba(255,59,48,0.12); color:var(--red); }
@@ -314,7 +315,8 @@ let ui = {
   completingId: null,
   helpStep: null, // 0-5 when the interactive guide is open, else null
   helpDemoStatus: '',
-  includePastSel: null
+  includePastSel: null,
+  statusBaseline: {}
 };
 
 /* ============ STATUS HELPERS ============ */
@@ -324,6 +326,13 @@ function statusKey(aId, sId){ return aId+'::'+sId; }
 function nextAssignmentNo(classId){
   const nums = state.assignments.filter(a=>a.classId===classId).map(a=>a.no||0);
   return nums.length ? Math.max(...nums)+1 : 1;
+}
+// Kart/sayfa açıldığındaki durumdan farklı mı? (yıldız göstergesi için)
+function statusChanged(aId, sId){
+  const b = ui.statusBaseline;
+  if(!b) return false;
+  const k = statusKey(aId, sId);
+  return (k in b) && b[k] !== getStatus(aId, sId).status;
 }
 function getStatus(aId, sId){ return state.statuses[statusKey(aId,sId)] || {status:'', doneAt:null}; }
 function setStatus(aId, sId, status){
@@ -597,7 +606,7 @@ function renderAssignmentCard(a, mode){
           <div class="student-row-top">
             <span class="student-name">${esc(s.name)}</span>
             <span class="status-pill status-${st.status===''?'empty':st.status} ${justSaved?'pill-saved':''}" data-action="cycle-status" data-aid="${a.id}" data-sid="${s.id}">
-              ${icon}${STATUS_LABEL[st.status]}${late ? `<span class="late-badge" title="Kontrol tarihinden sonra yapıldı">${ICONS.clockThin}</span>` : ''}${justSaved ? `<span class="saved-mark">${ICONS.check}</span>` : ''}
+              ${icon}${STATUS_LABEL[st.status]}${(open && statusChanged(a.id, s.id)) ? '<span class="status-star">*</span>' : ''}${late ? `<span class="late-badge" title="Kontrol tarihinden sonra yapıldı">${ICONS.clockThin}</span>` : ''}${justSaved ? `<span class="saved-mark">${ICONS.check}</span>` : ''}
             </span>
           </div>
           ${renderHistStrip(s.id, a)}
@@ -770,7 +779,7 @@ function renderStudentHistory(){
         <div class="history-date">Kontrol: ${fmtTRFull(a.kontrol)}</div>
       </div>
       <span class="status-pill status-${st.status===''?'empty':st.status} ${justSaved?'pill-saved':''}" data-action="cycle-status" data-aid="${a.id}" data-sid="${s.id}">
-        ${icon}${STATUS_LABEL[st.status]}${l ? `<span class="late-badge">${ICONS.clockThin}</span>` : ''}${justSaved ? `<span class="saved-mark">${ICONS.check}</span>` : ''}
+        ${icon}${STATUS_LABEL[st.status]}${statusChanged(a.id, s.id) ? '<span class="status-star">*</span>' : ''}${l ? `<span class="late-badge">${ICONS.clockThin}</span>` : ''}${justSaved ? `<span class="saved-mark">${ICONS.check}</span>` : ''}
       </span>
     </div>`;
   }).join('');
@@ -879,7 +888,7 @@ const HELP_STEPS = [
   },
   {
     title: 'Kontrol gününde tek tek işaretle',
-    desc: 'Aşağıdaki kartı dene — isme dokunarak durumun nasıl değiştiğini gör.',
+    desc: 'Aşağıdaki kartı dene — isme dokunarak durumun nasıl değiştiğini gör. İlk durumdan farklı bir durumdayken yanında * görünür, ilk duruma dönünce kaybolur.',
     visual: () => `
       <div class="student-row" style="border-top:none; padding-top:0;">
         <div class="student-row-top">
@@ -891,7 +900,7 @@ const HELP_STEPS = [
         <div class="student-row-top">
           <span class="student-name">Berk Demir</span>
           <span class="status-pill status-${ui.helpDemoStatus===''?'empty':ui.helpDemoStatus}" data-action="help-cycle-demo">
-            ${statusIcon(ui.helpDemoStatus)}${STATUS_LABEL[ui.helpDemoStatus]}
+            ${statusIcon(ui.helpDemoStatus)}${STATUS_LABEL[ui.helpDemoStatus]}${ui.helpDemoStatus!=='' ? '<span class="status-star">*</span>' : ''}
           </span>
         </div>
       </div>
@@ -1121,9 +1130,11 @@ function onAction(e){
       const prevGroup = ui.openCardGroup;
       const newOpenId = (ui.openCardId === id) ? null : id;
       ui.openCardId = newOpenId;
+      ui.statusBaseline = {};
       if(newOpenId){
         const na = state.assignments.find(x=>x.id===newOpenId);
         ui.openCardGroup = na ? assignmentKind(na) : 'active';
+        if(na) assignedStudents(na).forEach(stu => { ui.statusBaseline[statusKey(na.id, stu.id)] = getStatus(na.id, stu.id).status; });
       } else {
         ui.openCardGroup = null;
       }
@@ -1242,6 +1253,10 @@ function onAction(e){
     case 'open-student-history': {
       ui.currentStudentId = id;
       ui.view = 'studentHistory';
+      ui.statusBaseline = {};
+      state.assignments.forEach(a => {
+        if((a.studentIds||[]).includes(id)) ui.statusBaseline[statusKey(a.id, id)] = getStatus(a.id, id).status;
+      });
       render();
       break;
     }
